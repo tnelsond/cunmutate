@@ -1,0 +1,6 @@
+*.html
+*.elf
+app/build/
+app/obj/
+app/.externalNativeBuild
+.gradle
