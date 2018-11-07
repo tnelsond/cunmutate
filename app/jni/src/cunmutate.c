@@ -30,8 +30,8 @@ int init(){
 	SDL_Surface *surf;
 	SDL_Init(SDL_INIT_VIDEO);
 	if(SDL_GetCurrentDisplayMode(0, &dispmode) == 0){
-		camera.w = dispmode.w/4;
-		camera.h = dispmode.h/4;
+		camera.w = dispmode.w;
+		camera.h = dispmode.h;
 	}
 	win = SDL_CreateWindow("Shapes", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.w, camera.h, SDL_WINDOW_SHOWN);
 	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -52,7 +52,7 @@ void draw(mendel *m){
 	SDL_RenderCopyEx(ren, atlas, &rbodycircle, &r, 0, NULL, 0);
 
 	if(m->stripes){
-		SDL_SetTextureColorMod(atlas, 0x77, 0x22, 0x00);		
+		SDL_SetTextureColorMod(atlas, 0x00, 0x88, 0x44);		
 		SDL_RenderCopyEx(ren, atlas, &rbodystripes, &r, 0, NULL, 0);
 	}
 
@@ -97,6 +97,17 @@ void draw(mendel *m){
 int quit = 0;
 
 mendel creature = {0x0, 0xFF, 0x55, 100, 100, 300, 300, 1};
+mendel creature2 = {0x44, 0x33, 0x99, 200, 100, 250, 250, 0};
+
+int block_size = 64;
+
+char * level = "\
+#                  #\n\
+#                  #\n\
+##                 #\n\
+###                #\n\
+###~~~~~~~~~~~~~~~##\n\
+####################";
 
 void eloop(){
 	SDL_Rect tr = {50, 40, 200, 200};
@@ -115,7 +126,30 @@ void eloop(){
 	SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF );
 	SDL_RenderClear(ren);
 
+	int i = 0;
+	int newlinepos = 0;
+	int numlines = 0;
+	SDL_Rect r;
+	while(level[i]){
+		if(level[i] == '\n'){
+			newlinepos = i + 1;
+			++numlines;
+		}	
+		else if(level[i] != ' '){
+			r.x = (i - newlinepos) * block_size;
+			r.y = numlines * block_size;
+			r.w = r.h = block_size;
+			if(level[i] == '#')
+				SDL_SetTextureColorMod(atlas, 0x55, 0x33, 0x00);		
+			else if(level[i] == '~')
+				SDL_SetTextureColorMod(atlas, 0x33, 0x77, 0x00);		
+			SDL_RenderCopy(ren, atlas, &rblock, &r);
+		}
+		++i;
+	}
+
 	draw(&creature);
+	draw(&creature2);
 
 	SDL_RenderPresent(ren);
 	#ifdef __EMSCRIPTEN__

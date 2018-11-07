@@ -1,6 +1,9 @@
 *.html
 *.elf
 app/build/
+graphicssrc
 app/obj/
+app/jni/SDL
+app/jni/SDL2_image
 app/.externalNativeBuild
 .gradle
