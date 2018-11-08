@@ -290,6 +290,10 @@ void init_chrom(chrom *chr, char *s){
 	putchar('\n');
 }
 
+void free_chrom(chrom *chr){
+	free(chr->b);
+}
+
 chrom *crossover(chrom *x, chrom *y){
 	int i, xe, ys;
 	int grainsize = 21;

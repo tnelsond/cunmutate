@@ -3,6 +3,11 @@
 app/build/
 graphicssrc
 app/obj/
+app/jni/src/assets
+app/jni/src/*.html
+app/jni/src/*.js
+app/jni/src/*.wasm
+app/jni/src/*.data
 app/jni/SDL
 app/jni/SDL2_image
 app/.externalNativeBuild

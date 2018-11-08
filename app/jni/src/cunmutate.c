@@ -1,13 +1,17 @@
 #ifdef __ANDROID__
 #include "SDL.h"
+#define PATH ""
 #else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#define PATH "assets/"
 #endif
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+
+#include <stdlib.h>
 
 #define FPS 60
 
@@ -18,12 +22,16 @@ SDL_Rect camera = {0, 0, 0, 0};
 
 #include "atlas.h"
 #include "dna.h"
+#include "map.h"
 
 typedef struct mendel{
 	int r, g, b;
 	int x, y, w, h;
 	int stripes;
 }mendel;
+
+level *map;
+int block_size = 64;
 
 int init(){
 	SDL_DisplayMode dispmode;
@@ -36,13 +44,34 @@ int init(){
 	win = SDL_CreateWindow("Shapes", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.w, camera.h, SDL_WINDOW_SHOWN);
 	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" );
-	surf = IMG_Load("atlas.png");
+	surf = IMG_Load(PATH "atlas.png");
 	if(!surf){
 		SDL_Log("######## Image won't load!");
 	}
 	atlas = SDL_CreateTextureFromSurface(ren, surf);
 	SDL_FreeSurface(surf);
+
+	map = level_load(PATH "level1.txt");
+
 	return 0;
+}
+
+void level_draw(level *m){
+	int i, j;
+	SDL_Rect r;
+	SDL_SetTextureColorMod(atlas, 0x33, 0x11, 0x00);		
+
+	r.w = r.h = block_size;
+
+	for(j=0; j<m->h; ++j){
+		for(i=0; i<m->w; ++i){
+			if(m->map[j][i] != AIR){
+				r.x = i * block_size;
+				r.y = j * block_size;
+				SDL_RenderCopy(ren, atlas, &rblock, &r);
+			}
+		}
+	}
 }
 
 void draw(mendel *m){
@@ -82,10 +111,10 @@ void draw(mendel *m){
 	r.y = m->y + m->h * 0.9;
 	r.w = m->h/3;
 	r.h = m->w;
-	SDL_SetTextureColorMod(atlas, 0xdd, 0x33, 0x00);		
+	SDL_SetTextureColorMod(atlas, m->r, m->g, m->b);		
 	SDL_RenderCopyEx(ren, atlas, &rleg, &r, m->x, NULL, 0);
 	SDL_SetTextureColorMod(atlas, 0x77, 0x22, 0x00);		
-	SDL_RenderCopyEx(ren, atlas, &rlegspots, &r, m->x, NULL, 0);
+	SDL_RenderCopyEx(ren, atlas, &rlegstripes, &r, m->x, NULL, 0);
 	r.x = m->x + m->w / 2;
 	r.y = m->y + m->h * 0.9;
 	r.w = m->h/3;
@@ -99,18 +128,7 @@ int quit = 0;
 mendel creature = {0x0, 0xFF, 0x55, 100, 100, 300, 300, 1};
 mendel creature2 = {0x44, 0x33, 0x99, 200, 100, 250, 250, 0};
 
-int block_size = 64;
-
-char * level = "\
-#                  #\n\
-#                  #\n\
-##                 #\n\
-###                #\n\
-###~~~~~~~~~~~~~~~##\n\
-####################";
-
 void eloop(){
-	SDL_Rect tr = {50, 40, 200, 200};
 	SDL_Event e;
 	while( SDL_PollEvent( &e ) != 0 )
 	{
@@ -126,30 +144,9 @@ void eloop(){
 	SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF );
 	SDL_RenderClear(ren);
 
-	int i = 0;
-	int newlinepos = 0;
-	int numlines = 0;
-	SDL_Rect r;
-	while(level[i]){
-		if(level[i] == '\n'){
-			newlinepos = i + 1;
-			++numlines;
-		}	
-		else if(level[i] != ' '){
-			r.x = (i - newlinepos) * block_size;
-			r.y = numlines * block_size;
-			r.w = r.h = block_size;
-			if(level[i] == '#')
-				SDL_SetTextureColorMod(atlas, 0x55, 0x33, 0x00);		
-			else if(level[i] == '~')
-				SDL_SetTextureColorMod(atlas, 0x33, 0x77, 0x00);		
-			SDL_RenderCopy(ren, atlas, &rblock, &r);
-		}
-		++i;
-	}
-
 	draw(&creature);
 	draw(&creature2);
+	level_draw(map);
 
 	SDL_RenderPresent(ren);
 	#ifdef __EMSCRIPTEN__
@@ -215,6 +212,10 @@ int main(){
 	}
 	#endif
 
+	free_chrom(three);
+	free_chrom(four);
+	free_chrom(five);
+	free_chrom(six);
 
 	return 0;
 }
