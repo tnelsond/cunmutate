@@ -41,9 +41,9 @@ int init(){
 		camera.w = dispmode.w;
 		camera.h = dispmode.h;
 	}
-	win = SDL_CreateWindow("Shapes", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.w, camera.h, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("Unmutate 2.4", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.w, camera.h, SDL_WINDOW_SHOWN);
 	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" );
+	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
 	surf = IMG_Load(PATH "atlas.png");
 	if(!surf){
 		SDL_Log("######## Image won't load!");
@@ -56,9 +56,41 @@ int init(){
 	return 0;
 }
 
+void text_draw(int x, int y, int height, char *s){
+	SDL_Rect r;
+	SDL_Rect rt;
+	int i = 0;
+	int col = 0;
+	int row = 0;
+	rt.w = rtext.w;
+	rt.h = rtext.h;
+	r.y = y;
+	r.h = height;
+	r.w = (int)((height + 0.0)/rtext.h * rtext.w);
+	while(s[i]){
+		if(s[i] == '\n'){
+			++row;
+			col = 0;
+			r.y = y + row * r.h;
+		}
+		else{
+			if(isalpha(s[i])){
+				r.x = x + col * r.w;
+				rt.x = ((s[i] - 33) % 32) * rt.w + rtext.x;
+				rt.y = ((s[i] - 33) / 32) * rt.h + rtext.y;
+				SDL_RenderCopy(ren, atlas, &rt, &r);
+			}
+			++col;
+		}
+		++i;
+	}
+}
+
 void level_draw(level *m){
 	int i, j;
 	SDL_Rect r;
+
+
 	SDL_SetTextureColorMod(atlas, 0x33, 0x11, 0x00);		
 
 	r.w = r.h = block_size;
@@ -72,6 +104,11 @@ void level_draw(level *m){
 			}
 		}
 	}
+
+	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);		
+	text_draw(100, 20, 36, "Unmutate 2.4");
+	SDL_SetTextureColorMod(atlas, 0x00, 0x00, 0x00);		
+	text_draw(103, 23, 36, "Unmutate 2.4");
 }
 
 void draw(mendel *m){
@@ -85,7 +122,7 @@ void draw(mendel *m){
 		SDL_RenderCopyEx(ren, atlas, &rbodystripes, &r, 0, NULL, 0);
 	}
 
-	r.x = m->x + m->w*2/5;
+	r.x = m->x + m->w/2 - m->w/6;
 	r.y = m->y - m->h/4;
 	r.w=m->w/3;
 	r.h=m->h/3;
@@ -105,7 +142,7 @@ void draw(mendel *m){
 	r.w *= 1.49;
 	r.h *= 1.49;
 	SDL_SetTextureColorMod(atlas, 0xff, 0xff, 0xff);		
-	SDL_RenderCopyEx(ren, atlas, &reyewhite, &r, 0, NULL, 0);
+	SDL_RenderCopyEx(ren, atlas, &reyewhitered, &r, 0, NULL, 0);
 
 	r.x = m->x + m->w / 4;
 	r.y = m->y + m->h * 0.9;
@@ -125,8 +162,8 @@ void draw(mendel *m){
 
 int quit = 0;
 
-mendel creature = {0x0, 0xFF, 0x55, 100, 100, 300, 300, 1};
-mendel creature2 = {0x44, 0x33, 0x99, 200, 100, 250, 250, 0};
+mendel creature = {0x0, 0xFF, 0x55, 100, 100, 60, 60, 1};
+mendel creature2 = {0x44, 0x33, 0x99, 200, 100, 155, 155, 0};
 
 void eloop(){
 	SDL_Event e;
