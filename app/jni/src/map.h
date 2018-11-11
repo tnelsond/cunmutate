@@ -3,17 +3,18 @@
 #define GRASS '~'
 #define WATER 'w'
 
-typedef struct level{
+typedef struct world{
 	char **map;
-	int h, w;	
-}level;
+	int h, w, tilesize;
+	float g;
+}world;
 
-level *level_load(char *path){
+world *world_load(char *path){
 	int r, c, f, i;
 	char buf[512];
 	SDL_RWops *rw;
 	SDL_Log("######## LOADING LEVEL");
-	level *v = malloc(sizeof(level));
+	world *w = malloc(sizeof(world));
 	SDL_Log("######## SDL_RWFromFile");
 	rw = SDL_RWFromFile(path, "r");
 	if(rw == NULL){
@@ -27,19 +28,19 @@ level *level_load(char *path){
 
 	SDL_RWread(rw, buf, sizeof(buf), sizeof(buf));
 
-	sscanf(buf, "r:%d,c:%d\n", &v->h, &v->w);
-	SDL_Log("######## r:%d, c:%d\n", v->h, v->w);
-	v->map = malloc(sizeof(char *) * v->h);
-	for(r=0; r<v->h; ++r){
-		v->map[r] = malloc(sizeof(char) * v->w);
+	sscanf(buf, "r:%d,c:%d,s:%d,g:%f\n", &w->h, &w->w, &w->tilesize, &w->g);
+	SDL_Log("######## r:%d, c:%d, s:%d, g:%f\n", w->h, w->w, w->tilesize, w->g);
+	w->map = malloc(sizeof(char *) * w->h);
+	for(r=0; r<w->h; ++r){
+		w->map[r] = malloc(sizeof(char) * w->w);
 	}
 	
 	r = 0;
 	i = 0;
 	while((f = buf[i])){
-		++i;
 		if(f == '\n')
 			break;
+		++i;
 	}
 	while((f = buf[i])){
 		if(f == '\n'){
@@ -47,22 +48,22 @@ level *level_load(char *path){
 			++r;
 		}
 		else{
-			++c;
-			if(r < v->h && c < v->w)
-				v->map[r][c] = f;
+			if(r < w->h && c < w->w)
+				w->map[r][c] = f;
 		}
+		++c;
 		++i;
 	}
 
 	SDL_RWclose(rw);
-	return v;
+	return w;
 }
 
-void level_close(level *m){
+void world_close(world *w){
 	int r;
-	for(r = 0; r<m->h; ++r){
-		free(m->map[r]);
+	for(r = 0; r<w->h; ++r){
+		free(w->map[r]);
 	}
-	free(m->map);
-	free(m);
+	free(w->map);
+	free(w);
 }

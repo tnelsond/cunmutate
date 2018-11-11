@@ -1,4 +1,4 @@
-CFLAGS = -ansi -pedantic -Wall -O2
+CFLAGS = -pedantic -Wall -O2
 SDL = `sdl2-config --cflags --libs` -lm -lSDL2_image
 
 cunmutate.elf : cunmutate.c atlas.h dna.h map.h genome.h

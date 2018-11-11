@@ -12,6 +12,7 @@ SDL_Rect reyecat = {768, 256, 256, 256};
 SDL_Rect reyewhite = {512, 0, 256, 256};
 SDL_Rect reyewhitered = {768, 0, 256, 256};
 SDL_Rect rblock = {0, 1024, 256, 256};
+SDL_Rect rclearblock = {0, 1280, 256, 256};
 
 SDL_Rect rtext = {256, 1024, 10, 18};
 
