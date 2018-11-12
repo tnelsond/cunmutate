@@ -190,12 +190,19 @@ void print_bases(chrom *chr){
 
 void print_source(chrom *chr){
 	int i;
+	int j = 0;
 	bases b;
-	for(i=0; i < chr->len; i+=3){
-		b = get_triplet(chr, i);
-		putchar((b < 32) ? (b + 64) : b);
-	}
-	putchar('\n');
+	if(!chr)
+		return;
+	do{
+		for(i=0; i < chr->len; i+=3){
+			b = get_triplet(chr, i);
+			putchar((b < 32) ? (b + 64) : b);
+		}
+		putchar('\n');
+		SDL_Log("Chromosome %d\n", j);
+		++j;
+	}while(chr = chr->next);
 }
 
 int hash_gene(chrom *chr, int i){
@@ -217,38 +224,43 @@ int hash_gene(chrom *chr, int i){
 	return hash;
 }
 
-void increment_hash(int hash){
+void increment_hash(int hash, int *proc){
 	int i;
 	for(i=0; i<GENE_NUM; ++i){
-		if(genes[i].hash == hash){
-			++genes[i].count;
+		if(genemap[i] == hash){
+			proc[i] += 1;
 			break;
 		}
 	}
 }
 
-void hash_chrom(chrom *chr){
+void hash_chrom(chrom *chr, int *proc){
 	int i;
 	int hash = 0;
 	int inside = 0;
-	for(i = 0; i < chr->len; ++i){
-		amino a = get_amino(chr, i);
-		if(a == START){
-			inside = 1;
-		}
-		if(inside){
-			if(a == STP){
-				inside = 0;
-				printf("\nhash: %d\n", hash);
-				increment_hash(hash);
-				hash = 0;
-			}
-			else{
-				hash = hash * HASHFAC + a;
-			}
-			i += 2;
-		}
+	if(!chr){
+		return;
 	}
+	do{
+		for(i = 0; i < chr->len; ++i){
+			amino a = get_amino(chr, i);
+			if(a == START){
+				inside = 1;
+			}
+			if(inside){
+				if(a == STP){
+					inside = 0;
+					printf("\nhash: %d\n", hash);
+					increment_hash(hash, proc);
+					hash = 0;
+				}
+				else{
+					hash = hash * HASHFAC + a;
+				}
+				i += 2;
+			}
+		}
+	}while(chr = chr->next);
 }
 
 void print_binary_triplet(bases b){
@@ -294,7 +306,7 @@ void free_chrom(chrom *chr){
 	free(chr->b);
 }
 
-chrom *crossover(chrom *x, chrom *y){
+chrom *chrom_crossover(chrom *x, chrom *y){
 	int i, xe, ys;
 	int grainsize = 21;
 	chrom *ret = malloc(sizeof(chrom));
@@ -327,5 +339,78 @@ chrom *crossover(chrom *x, chrom *y){
 	return ret;
 }
 
-void express(chrom *a, chrom *b){
+chrom *chrom_copy(chrom *x){
+	chrom *ret = malloc(sizeof(chrom));
+	ret->b = malloc(sizeof(bases)*x->len/4);
+	for(int i = 0; i < x->len / 4; ++i){
+		ret->b[i] = x->b[i];
+	}
+	ret->len = x->len;
+	ret->next = NULL;
+	/* Debug */
+	ret->split = x->split;
+
+	return ret;
+}
+
+chrom *chrom_breed(chrom *x, chrom *y){
+	chrom *ret = NULL;
+	chrom *c;
+	chrom *z = x;
+	int i = 0;
+	while(1){
+		SDL_Log("##### chrom_breed");
+		if((rand() % 2)){
+			if(x->next)
+				c = chrom_copy((rand() % 2) ? x : x->next);
+			else
+				c = chrom_copy(x);
+		}
+		else{
+			if(x->next)
+				c = chrom_crossover(x, x->next);
+			else
+				c = chrom_copy(x);
+		}
+
+		++i;
+		if(i % 2){
+			z = y;
+			if(x->next){
+				x = x->next;
+				if(x->next){
+					x = x->next;
+				}
+				else{
+					break;
+				}
+			}
+			else{
+				break;
+			}
+		}
+		else{
+			z = x;
+			if(y->next){
+				y = y->next;
+				if(y->next){
+					y = y->next;
+				}
+				else{
+					break;
+				}
+			}
+			else
+				break;
+		}
+
+		c = c->next;
+		if(ret == NULL){
+			ret = c;
+		}
+	}
+	c->next = NULL;
+
+	SDL_Log("##### chrom_breed done");
+	return ret;
 }

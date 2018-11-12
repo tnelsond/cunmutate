@@ -168,47 +168,29 @@ void eloop(){
 }
 
 int main(){
-	int i;
 	chrom one;
 	chrom two;
-	init_genes();
-	srand(86);
+	init_genemap();
 	init_chrom(&one, chroma);
 	init_chrom(&two, chromb);
-	hash_chrom(&one);
-	hash_chrom(&two);
+	srand(86);
 
 	creature.chr = &one;
+	creature.chr->next = chrom_copy(&one);
 	creature2.chr = &two;
+	creature2.chr->next = chrom_copy(&two);
 	creature.next = &creature2;
 	creature.sex = MALE;
 	creature2.sex = FEMALE;
 
-	if(genes[0].count >= 2){
-		creature.r = 0xFF;
-	}
-	else if(genes[0].count == 1){
-		creature.r = 0x88;
-	}
-	else{
-		creature.r = 0;
-	}
-	if(genes[1].count == 1){
-		creature.g/= 2;
-		creature.r/= 2;
-		creature.b/= 2;
-	}
-	else if(genes[1].count >= 2){
-		creature.g/= 4;
-		creature.r/= 4;
-		creature.b/= 4;
-	}
+	print_source(creature.chr);
+	print_source(creature2.chr);
+	mendel_print_proc(&creature);
+	mendel_print_proc(&creature2);
+	
+	mendel_express(&creature);
+	mendel_express(&creature2);
 
-	for(i=0; i<GENE_NUM; ++i){
-		SDL_Log("\n\n\n################### genes[%d]: %d %d\n", i, genes[i].count, genes[i].hash);
-	}
-
-	SDL_Log("\n\n\n################### Hello\n\n\n");
 	init();
 
 	#ifdef __EMSCRIPTEN__

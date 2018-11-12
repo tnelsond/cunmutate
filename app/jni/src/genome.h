@@ -1,10 +1,5 @@
 #define GENE_NUM 10
-typedef struct gene{
-	int hash;
-	int count;
-}gene;
-
-gene genes[GENE_NUM];
+int genemap[GENE_NUM];
 
 void init_gene(int i, char *s){
 	int hash = 0;
@@ -12,17 +7,10 @@ void init_gene(int i, char *s){
 		hash = hash * HASHFAC + aminos[*s & BIT6];
 		++s;
 	}
-	genes[i].hash = hash;
+	genemap[i] = hash;
 }
 
-void reset_gene_count(){
-	int i = sizeof(genes);
-	while(--i >= 0){
-		genes[i].count = 0;
-	}
-}
-
-void init_genes(){
+void init_genemap(){
 	init_gene(0, "come Thou Fountof3very BlEssInG J");
 	init_gene(1, "czzome my Fountof3very BlEssInGs J");
 	init_gene(2, "call this black, it'sAdarkCoLoR, unlike J");
