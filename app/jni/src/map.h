@@ -9,6 +9,8 @@ typedef struct world{
 	float g;
 }world;
 
+world *w;
+
 world *world_load(char *path){
 	int r, c, f, i;
 	char buf[512];
@@ -37,10 +39,9 @@ world *world_load(char *path){
 	
 	r = 0;
 	i = 0;
-	while((f = buf[i])){
+	while((f = buf[i++])){
 		if(f == '\n')
 			break;
-		++i;
 	}
 	while((f = buf[i])){
 		if(f == '\n'){
@@ -48,7 +49,7 @@ world *world_load(char *path){
 			++r;
 		}
 		else{
-			if(r < w->h && c < w->w)
+			if(r <= w->h && c <= w->w)
 				w->map[r][c] = f;
 		}
 		++c;
@@ -66,4 +67,27 @@ void world_close(world *w){
 	}
 	free(w->map);
 	free(w);
+}
+
+void world_draw(world *w){
+	int i, j;
+	SDL_Rect r;
+
+
+	SDL_SetTextureColorMod(atlas, 0x33, 0x11, 0x00);		
+
+	r.w = r.h = w->tilesize;
+
+	for(j=0; j<w->h; ++j){
+		for(i=0; i<=w->w; ++i){
+			if(w->map[j][i] != AIR){
+				r.x = i * w->tilesize;
+				r.y = j * w->tilesize;
+				SDL_RenderCopy(ren, atlas, &rblock, &r);
+			}
+		}
+	}
+
+	SDL_SetTextureColorMod(atlas, 0x00, 0x00, 0x00);		
+	text_draw(103, 23, 36, "Unmutate 2.4");
 }
