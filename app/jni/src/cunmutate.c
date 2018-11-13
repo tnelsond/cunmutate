@@ -176,20 +176,21 @@ int main(){
 	srand(86);
 
 	creature.chr = &one;
-	creature.chr->next = chrom_copy(&one);
+	creature.chr->next = chrom_copy(&two);
 	creature2.chr = &two;
-	creature2.chr->next = chrom_copy(&two);
+	creature2.chr->next = chrom_copy(&one);
 	creature.next = &creature2;
 	creature.sex = MALE;
 	creature2.sex = FEMALE;
-
+	
 	print_source(creature.chr);
 	print_source(creature2.chr);
-	mendel_print_proc(&creature);
-	mendel_print_proc(&creature2);
 	
 	mendel_express(&creature);
 	mendel_express(&creature2);
+
+	mendel_print_proc(&creature);
+	mendel_print_proc(&creature2);
 
 	init();
 

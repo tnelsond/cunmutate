@@ -18,6 +18,6 @@ void init_genemap(){
 	init_gene(4, "call this red, it'sAdarkCoLoR, unlike J");
 }
 
-char *chroma = "AAAAA come Thou Fountof3very BlEssInG Just to know that, you are near. call this black, it'sAdarkCoLoR, unlike Jaundice. cSpots are greatNevArwRong$fidoRov*rJust come on cause they fear the stripes, they make them quakeJ GGGGGGGGGG";
+char *chroma = "AAAAA come Thou Fountof3very BlEssInG Just to know that, you are near. call this black, it'sAdarkCoLoR, unlike Jaundice. cSpots are greatNevArwRong$fidoRov*rJust come Jon cause they fear the stripes, they make them quakeJ GGGGGGGGGG";
 char *chromb = "AAAAA czzome my Fountof3very BlEssInGs Just to know that, you are near. call this red, it'sAdarkCoLoR, unlike Jaundice. cstripesAreWhatTigg ers have!Just come on GGGGGGGGGG";
 

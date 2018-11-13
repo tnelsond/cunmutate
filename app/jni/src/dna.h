@@ -235,14 +235,14 @@ void increment_hash(int hash, int *proc){
 }
 
 void hash_chrom(chrom *chr, int *proc){
-	int i;
-	int hash = 0;
-	int inside = 0;
 	if(!chr){
 		return;
 	}
 	do{
-		for(i = 0; i < chr->len; ++i){
+		int hash = 0;
+		int inside = 0;
+		SDL_Log("##### Hashing");
+		for(int i = 0; i < chr->len; ++i){ // Maybe add support for genes inside genes? //
 			amino a = get_amino(chr, i);
 			if(a == START){
 				inside = 1;
@@ -260,7 +260,7 @@ void hash_chrom(chrom *chr, int *proc){
 				i += 2;
 			}
 		}
-	}while(chr = chr->next);
+	}while((chr = chr->next) != NULL);
 }
 
 void print_binary_triplet(bases b){
@@ -340,6 +340,7 @@ chrom *chrom_crossover(chrom *x, chrom *y){
 }
 
 chrom *chrom_copy(chrom *x){
+	SDL_Log("#### chrom_copy");
 	chrom *ret = malloc(sizeof(chrom));
 	ret->b = malloc(sizeof(bases)*x->len/4);
 	for(int i = 0; i < x->len / 4; ++i){
@@ -350,66 +351,67 @@ chrom *chrom_copy(chrom *x){
 	/* Debug */
 	ret->split = x->split;
 
+	if(ret){
+		SDL_Log("#### chrom_copy not NULL");
+	}
 	return ret;
 }
 
 chrom *chrom_breed(chrom *x, chrom *y){
 	chrom *ret = NULL;
-	chrom *c;
+	chrom *c = NULL;
+	chrom *b = NULL;
 	chrom *z = x;
 	int i = 0;
 	while(1){
 		SDL_Log("##### chrom_breed");
-		if((rand() % 2)){
-			if(x->next)
-				c = chrom_copy((rand() % 2) ? x : x->next);
+		if((rand() % 2) >= 0){ /* Will always copy (for now) */
+			if(z->next)
+				c = chrom_copy((rand() % 2) ? z : z->next);
 			else
-				c = chrom_copy(x);
+				c = chrom_copy(z);
 		}
 		else{
-			if(x->next)
-				c = chrom_crossover(x, x->next);
+			if(z->next)
+				c = chrom_crossover(z, z->next);
 			else
-				c = chrom_copy(x);
+				c = chrom_copy(z);
+		}
+
+		if(!ret){
+			ret = c;
+			b = c;
+		}
+		else{
+			b->next = c;
+			b = c;
 		}
 
 		++i;
 		if(i % 2){
 			z = y;
-			if(x->next){
-				x = x->next;
-				if(x->next){
-					x = x->next;
-				}
-				else{
-					break;
-				}
-			}
-			else{
-				break;
-			}
 		}
-		else{
-			z = x;
-			if(y->next){
-				y = y->next;
-				if(y->next){
-					y = y->next;
-				}
-				else{
-					break;
-				}
+		else{ // Increment the chromosome pair
+			if(x->next && x->next->next){
+				x = x->next->next;
 			}
 			else
 				break;
+			if(y->next && y->next->next){
+				y = y->next->next;
+			}
+			else
+				break;
+			z = x;
 		}
-
 		c = c->next;
-		if(ret == NULL){
-			ret = c;
-		}
 	}
 	c->next = NULL;
+
+	if(ret == NULL)
+		SDL_Log("##### chrom_breed NULL Chromosome!");
+	if(ret->next && ret->next->next)
+		SDL_Log("##### chrom_breed Have a Chromosome Pair");
 
 	SDL_Log("##### chrom_breed done");
 	return ret;

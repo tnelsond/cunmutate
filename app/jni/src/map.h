@@ -89,5 +89,5 @@ void world_draw(world *w){
 	}
 
 	SDL_SetTextureColorMod(atlas, 0x00, 0x00, 0x00);		
-	text_draw(103, 23, 36, "Unmutate 2.4");
+	text_draw(103, 23, 36, "Unmutate 4.0a");
 }

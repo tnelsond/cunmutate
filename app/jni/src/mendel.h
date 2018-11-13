@@ -51,6 +51,7 @@ void mendel_print_proc(mendel *m){
 
 void mendel_express(mendel *m){
 	hash_chrom(m->chr, m->proc);
+
 	m->r = 0x45 * m->proc[0];
 	m->g = 0x45 * m->proc[1];
 	m->b = 0x45 * m->proc[2];
@@ -82,6 +83,9 @@ mendel * mendel_breed(mendel *m, mendel *mo){
 	SDL_Log("####### mendel_breed\n");
 	mendel *ret = malloc(sizeof(mendel));
 	ret->chr = chrom_breed(m->chr, mo->chr); 
+	if(ret->chr == NULL){
+		SDL_Log("#### NULL Chromosomes!");
+	}
 	ret->r = 0x00;
 	ret->g = 0x00;
 	ret->b = 0xFF;
