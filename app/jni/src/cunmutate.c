@@ -150,12 +150,12 @@ void eloop(){
 
 
 	int i = 0;
-	mendel *m = mc;
+	mendel *m = mc->next;
 	do{
 		++i;
 		mendel_draw(m);
 		m = m->next;
-	}while(m != mc);
+	}while(m != mc->next);
 	world_draw(w);
 
 	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
