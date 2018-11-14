@@ -84,7 +84,7 @@ int init(){
 	return 0;
 }
 
-
+mendel *mc = &creature;
 
 int quit = 0;
 
@@ -98,38 +98,50 @@ void eloop(){
 		}
 		if(e.type == SDL_KEYDOWN){
 			if(e.key.keysym.sym == SDLK_w){
-				creature.state |= UP;
+				mc->state |= UP;
 			}
 			else if(e.key.keysym.sym == SDLK_a){
-				creature.state |= LEFT;
+				mc->state |= LEFT;
 			}
 			else if(e.key.keysym.sym == SDLK_s){
-				creature.state |= DOWN;
+				mc->state |= DOWN;
 			}
 			else if(e.key.keysym.sym == SDLK_d){
-				creature.state |= RIGHT;
+				mc->state |= RIGHT;
 			}
 			else if(e.key.keysym.sym == SDLK_j){
-				creature.state |= BREED;
+				mc->state |= BREED;
+			}
+			else if(e.key.keysym.sym == SDLK_k){
+				mendel *m = mc;
+				while((m = m->next)){ /* Need to free killed mendel yet */
+					if(m->next == mc){
+						mc = m;
+						mc->next = mc->next->next;
+					}
+				}
+			}
+			else if(e.key.keysym.sym == SDLK_TAB){
+				mc = mc->next;
 			}
 		}
 		else if(e.type == SDL_KEYUP){
 			if(e.key.keysym.sym == SDLK_w){
-				creature.state &= ~UP;
+				mc->state &= ~UP;
 			}
 			else if(e.key.keysym.sym == SDLK_a){
-				creature.state &= ~LEFT;
+				mc->state &= ~LEFT;
 			}
 			else if(e.key.keysym.sym == SDLK_s){
-				creature.state &= ~DOWN;
+				mc->state &= ~DOWN;
 			}
 			else if(e.key.keysym.sym == SDLK_d){
-				creature.state &= ~RIGHT;
+				mc->state &= ~RIGHT;
 			}
 		}
 		else if(e.type == SDL_MOUSEMOTION){
-			creature.vx += e.motion.xrel;
-			creature.vy += e.motion.yrel;
+			mc->vx += e.motion.xrel;
+			mc->vy += e.motion.yrel;
 		}
 	}
 
@@ -138,25 +150,30 @@ void eloop(){
 
 
 	int i = 0;
-	mendel *m = &creature;
+	mendel *m = mc;
 	do{
 		++i;
 		mendel_draw(m);
 		m = m->next;
-	}while(m != &creature);
+	}while(m != mc);
 	world_draw(w);
 
+	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
+	SDL_Rect r = {mc->x + mc->w / 2 - 25, mc->y - 50, 50, 50};
+	SDL_RenderCopy(ren, atlas, &rtriangle, &r);
+
 	SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF );
-	sprintf(bufs, "Hi!?{} %d\n", i);
+	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
+	sprintf(bufs, "Mendels: %d\n", i);
 	text_draw(10, 50, 34, bufs);
 
-	/* Update Creatures */
-	m = &creature;
+	/* Update Mendels */
+	m = mc;
 	do{
 		if(m->state != ONGROUND || m->vx != 0)
 			mendel_update(m, w);
 		m = m->next;
-	}while(m != &creature);
+	}while(m != mc);
 	
 
 	SDL_RenderPresent(ren);
@@ -170,15 +187,23 @@ void eloop(){
 int main(){
 	chrom one;
 	chrom two;
+	chrom three;
+	chrom four;
 	init_genemap();
-	init_chrom(&one, chroma);
-	init_chrom(&two, chromb);
+	init_chrom(&one, chromc);
+	init_chrom(&two, chromd);
+	init_chrom(&three, chroma);
+	init_chrom(&four, chromb);
 	srand(86);
 
 	creature.chr = &one;
 	creature.chr->next = chrom_copy(&two);
+	creature.chr->next->next = &three;
+	creature.chr->next->next->next = &four;
 	creature2.chr = &two;
-	creature2.chr->next = chrom_copy(&one);
+	creature2.chr->next = chrom_copy(&two);
+	creature2.chr->next->next = &three;
+	creature2.chr->next->next->next = &four;
 	creature.next = &creature2;
 	creature.sex = MALE;
 	creature2.sex = FEMALE;

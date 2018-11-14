@@ -11,7 +11,9 @@
 #define FEMALE 2
 
 typedef struct mendel{
-	int r, g, b;
+	SDL_Color color;
+	SDL_Color color2;
+	SDL_Color ecolor;
 	int x, y, w, h;
 	int stripes;
 	unsigned int state;
@@ -25,7 +27,9 @@ typedef struct mendel{
 }mendel;
 
 mendel creature = {
-	0x0, 0xFF, 0x55,
+	{0x0, 0xFF, 0x55, 0xFF},
+	{0x0, 0x00, 0x00, 0xFF},
+	{0x0, 0x00, 0x00, 0xFF},
 	200, 100, 100, 160,
 	0,
 	0,
@@ -34,7 +38,9 @@ mendel creature = {
 	NULL,
 	NULL};
 mendel creature2 = {
-	0x44, 0x33, 0x99,
+	{0x0, 0xFF, 0x55, 0xFF},
+	{0x0, 0x00, 0x00, 0xFF},
+	{0x0, 0x00, 0x00, 0xFF},
 	200, 100, 155, 200,
 	1,
 	0,
@@ -52,29 +58,48 @@ void mendel_print_proc(mendel *m){
 void mendel_express(mendel *m){
 	hash_chrom(m->chr, m->proc);
 
-	m->r = 0x45 * m->proc[0];
-	m->g = 0x45 * m->proc[1];
-	m->b = 0x45 * m->proc[2];
+	if(m->proc[9]){
+		m->stripes = 2;
+	}
+	else if(m->proc[5]){
+		m->stripes = 1;
+	}
+
+	m->color.r = 0x45 * m->proc[6];
+	m->color.g = 0x45 * m->proc[3];
+	m->color.b = 0x45 * m->proc[4];
 
 	if(m->proc[3] == 0){
 		m->w = 40;
 	}
-	else if(m->proc[3] == 1){
+	else if(m->proc[5] == 1){
 		m->w = 70;
 	}
-	else if(m->proc[3] == 2){
+	else if(m->proc[5] == 2){
 		m->w = 90;
 	}
-	else if(m->proc[3] >= 3){
+	else if(m->proc[5] >= 3){
 		m->w = 140;
 	}
 
-	if(m->proc[4] == 1){
-		if(m->proc[5] == 1){
+	m->color2.r = 0x99 - m->proc[7] * 0x44;
+	m->color2.g = 0x99 - m->proc[7] * 0x44;
+	m->color2.b = 0x88 - m->proc[7] * 0x44;
+
+
+	m->ecolor.r = 0x65;
+	m->ecolor.g = 0x65;
+	m->ecolor.b = 0x70 * m->proc[8];
+
+	m->speed = 2;
+	m->jump = 15;
+
+	if(m->proc[0] == 1){
+		if(m->proc[1] == 1){
 			m->sex = MALE;
 		}
 	}
-	else if(m->proc[4] >= 2){
+	else if(m->proc[1] >= 2){
 		m->sex = FEMALE;
 	}
 }
@@ -86,9 +111,14 @@ mendel * mendel_breed(mendel *m, mendel *mo){
 	if(ret->chr == NULL){
 		SDL_Log("#### NULL Chromosomes!");
 	}
-	ret->r = 0x00;
-	ret->g = 0x00;
-	ret->b = 0xFF;
+	ret->color.r = 0x00;
+	ret->color.g = 0x00;
+	ret->color.b = 0x00;
+	ret->color.a = 0xFF;
+	ret->color2.r = 0x00;
+	ret->color2.g = 0x00;
+	ret->color2.b = 0x00;
+	ret->color2.a = 0x00;
 	ret->x = (m->x + mo->x) / 2;
 	ret->y = (m->y + mo->y) / 2;
 	ret->w = 80;
@@ -331,17 +361,17 @@ void mendel_draw(mendel *m){
 	r.y += dy;
 
 	SDL_Point center = {r.w / 2, r.h / 10};
-	SDL_SetTextureColorMod(atlas, m->r, m->g, m->b);		
+	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
 	SDL_RenderCopyEx(ren, atlas, &rleg, &r, angle, &center, 0);
 	if(m->stripes){
-		SDL_SetTextureColorMod(atlas, 0x77, 0x22, 0x00);		
+		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
 		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, angle, &center, 0);
 	}
 	r.x = m->x + m->w / 2;
-	SDL_SetTextureColorMod(atlas, m->r, m->g, m->b);		
+	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
 	SDL_RenderCopyEx(ren, atlas, &rleg, &r, -angle, &center, 0);
 	if(m->stripes){
-		SDL_SetTextureColorMod(atlas, 0x77, 0x22, 0x00);		
+		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
 		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, -angle, &center, 0);
 	}
 
@@ -349,11 +379,11 @@ void mendel_draw(mendel *m){
 	r.y = m->y + dy;
 	r.w=m->w;
 	r.h=m->w;
-	SDL_SetTextureColorMod(atlas, m->r, m->g, m->b);		
+	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
 	SDL_RenderCopy(ren, atlas, &rbodycircle, &r);
 
 	if(m->stripes){
-		SDL_SetTextureColorMod(atlas, 0x00, 0x88, 0x44);		
+		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
 		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rbodystripes : &rbodyspots, &r, 0, NULL, 0);
 	}
 
@@ -375,7 +405,8 @@ void mendel_draw(mendel *m){
 	r.y = m->y + m->w *3/10 + dy;
 	r.w = m->w * .4;
 	r.h = m->w *.4;
-	SDL_SetTextureColorMod(atlas, 0x00, 0xFF, 0x00);		
+
+	SDL_SetTextureColorMod(atlas, m->ecolor.r, m->ecolor.g, m->ecolor.b);		
 	SDL_RenderCopyEx(ren, atlas, &reye, &r, 0, NULL, 0);
 
 	r.x -= r.w / 4.2;

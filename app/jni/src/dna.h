@@ -365,15 +365,17 @@ chrom *chrom_breed(chrom *x, chrom *y){
 	int i = 0;
 	while(1){
 		SDL_Log("##### chrom_breed");
-		if((rand() % 2) >= 0){ /* Will always copy (for now) */
+		if((rand() % 2)){
 			if(z->next)
 				c = chrom_copy((rand() % 2) ? z : z->next);
 			else
 				c = chrom_copy(z);
 		}
 		else{
-			if(z->next)
+			if(z->next){
 				c = chrom_crossover(z, z->next);
+				SDL_Log("##### chrom_breed CROSSOVER!");
+			}
 			else
 				c = chrom_copy(z);
 		}
