@@ -290,16 +290,32 @@ void print_binary_text(char *s){
 }
 
 /* Takes 3 2bit DNA bases char input and packs them into a 4 2bit DNA base. */
-void init_chrom(chrom *chr, char *s){
+chrom *init_chrom(char *s){
 	int i = 0;
 	int slen = strlen(s);
+	chrom *chr = malloc(sizeof(chrom));
 	chr->split = -1;
 	chr->len = slen * 3; 
 	chr->b = malloc(sizeof(bases) * (chr->len/4 + ((chr->len % 4) ? 1 : 0)));
 	for(i=0; i < chr->len; i += 3){
 		set_triplet(chr, i, s[i/3]);
 	}
+	chr->next = NULL;
 	putchar('\n');
+	return chr;
+}
+
+#include <stdarg.h>
+chrom * chrom_chain_init(int num, ...){
+	va_list ap;
+	va_start(ap, num);	
+	chrom *ret = init_chrom(va_arg(ap, char *));
+	chrom *c = ret;
+	for(int i=1; i<num; ++i){
+		c->next = init_chrom(va_arg(ap, char *));
+		c = c->next;
+	}
+	return ret;
 }
 
 void free_chrom(chrom *chr){

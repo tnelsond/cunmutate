@@ -84,7 +84,7 @@ int init(){
 	return 0;
 }
 
-mendel *mc = &creature;
+mendel *mc = NULL;
 
 int quit = 0;
 
@@ -118,10 +118,12 @@ void eloop(){
 					if(m->next == mc){
 						mc = m;
 						mc->next = mc->next->next;
+						break;
 					}
 				}
 			}
 			else if(e.key.keysym.sym == SDLK_TAB){
+				mc->state &= ~(UP | LEFT | DOWN | RIGHT | BREED);
 				mc = mc->next;
 			}
 		}
@@ -185,38 +187,13 @@ void eloop(){
 }
 
 int main(){
-	chrom one;
-	chrom two;
-	chrom three;
-	chrom four;
 	init_genemap();
-	init_chrom(&one, chromc);
-	init_chrom(&two, chromd);
-	init_chrom(&three, chroma);
-	init_chrom(&four, chromb);
-	srand(86);
+	srand(6);
 
-	creature.chr = &one;
-	creature.chr->next = chrom_copy(&two);
-	creature.chr->next->next = &three;
-	creature.chr->next->next->next = &four;
-	creature2.chr = &two;
-	creature2.chr->next = chrom_copy(&two);
-	creature2.chr->next->next = &three;
-	creature2.chr->next->next->next = &four;
-	creature.next = &creature2;
-	creature.sex = MALE;
-	creature2.sex = FEMALE;
+	mc = mendel_init(100, 100, chrom_chain_init(6, chroma, chromb, chromc, chromd, chrome, chromf));
+	mc->next = mendel_init(130, 100, chrom_chain_init(6, chroma, chromb, chromd, chromd, chrome, chromf));
+	mc->next->next = mc;
 	
-	print_source(creature.chr);
-	print_source(creature2.chr);
-	
-	mendel_express(&creature);
-	mendel_express(&creature2);
-
-	mendel_print_proc(&creature);
-	mendel_print_proc(&creature2);
-
 	init();
 
 	#ifdef __EMSCRIPTEN__

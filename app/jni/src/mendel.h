@@ -26,29 +26,6 @@ typedef struct mendel{
 	int proc[GENE_NUM];
 }mendel;
 
-mendel creature = {
-	{0x0, 0xFF, 0x55, 0xFF},
-	{0x0, 0x00, 0x00, 0xFF},
-	{0x0, 0x00, 0x00, 0xFF},
-	200, 100, 100, 160,
-	0,
-	0,
-	1, 30, 0, 0,
-	0,
-	NULL,
-	NULL};
-mendel creature2 = {
-	{0x0, 0xFF, 0x55, 0xFF},
-	{0x0, 0x00, 0x00, 0xFF},
-	{0x0, 0x00, 0x00, 0xFF},
-	200, 100, 155, 200,
-	1,
-	0,
-	1, 30, 0, 0,
-	0,
-	NULL,
-	&creature};
-
 void mendel_print_proc(mendel *m){
 	for(int i=0; i<GENE_NUM; ++i){
 		SDL_Log("%d: %d", i, m->proc[i]);
@@ -65,9 +42,39 @@ void mendel_express(mendel *m){
 		m->stripes = 1;
 	}
 
-	m->color.r = 0x45 * m->proc[6];
-	m->color.g = 0x45 * m->proc[3];
-	m->color.b = 0x45 * m->proc[4];
+	if(m->proc[10]){
+		m->color.r = 0x45 * m->proc[6];
+		m->color.g = 0x45 * m->proc[3];
+		m->color.b = 0x45 * m->proc[4];
+
+		m->color2.r = 0x99 - m->proc[7] * 0x44;
+		m->color2.g = 0x99 - m->proc[7] * 0x44;
+		m->color2.b = 0x88 - m->proc[7] * 0x44;
+
+		if(m->proc[13]){
+			m->ecolor.r = 0x65;
+			m->ecolor.g = 0x65 + 0x44*m->proc[13];
+		}
+		else if(m->proc[14]){
+			m->ecolor.r = 0xFF;
+			m->ecolor.g = 0x22;
+		}
+		else{
+			m->ecolor.r = 0x55;
+			m->ecolor.g = 0x55;
+		}
+		m->ecolor.b = 0x70 * m->proc[8];
+	}
+
+	if(m->proc[12]){
+		m->h = m->w * 2;
+	}
+	else if(m->proc[11]){
+		m->h = m->w * 3;
+	}
+	else{
+		m->h = m->w * 1.3;
+	}
 
 	if(m->proc[3] == 0){
 		m->w = 40;
@@ -82,17 +89,8 @@ void mendel_express(mendel *m){
 		m->w = 140;
 	}
 
-	m->color2.r = 0x99 - m->proc[7] * 0x44;
-	m->color2.g = 0x99 - m->proc[7] * 0x44;
-	m->color2.b = 0x88 - m->proc[7] * 0x44;
-
-
-	m->ecolor.r = 0x65;
-	m->ecolor.g = 0x65;
-	m->ecolor.b = 0x70 * m->proc[8];
-
-	m->speed = 2;
-	m->jump = 15;
+	m->speed = 1;
+	m->jump = 35;
 
 	if(m->proc[0] == 1){
 		if(m->proc[1] == 1){
@@ -104,23 +102,23 @@ void mendel_express(mendel *m){
 	}
 }
 
-mendel * mendel_breed(mendel *m, mendel *mo){
-	SDL_Log("####### mendel_breed\n");
+mendel *mendel_init(int x, int y, chrom *chr){
+	SDL_Log("####### mendel_init\n");
 	mendel *ret = malloc(sizeof(mendel));
-	ret->chr = chrom_breed(m->chr, mo->chr); 
-	if(ret->chr == NULL){
-		SDL_Log("#### NULL Chromosomes!");
-	}
-	ret->color.r = 0x00;
-	ret->color.g = 0x00;
-	ret->color.b = 0x00;
+	ret->color.r = 0xFF;
+	ret->color.g = 0xFF;
+	ret->color.b = 0xFF;
 	ret->color.a = 0xFF;
-	ret->color2.r = 0x00;
-	ret->color2.g = 0x00;
-	ret->color2.b = 0x00;
-	ret->color2.a = 0x00;
-	ret->x = (m->x + mo->x) / 2;
-	ret->y = (m->y + mo->y) / 2;
+	ret->color2.r = 0xFF;
+	ret->color2.g = 0xFF;
+	ret->color2.b = 0xFF;
+	ret->color2.a = 0xFF;
+	ret->ecolor.r = 0xFF;
+	ret->ecolor.g = 0xDD;
+	ret->ecolor.b = 0xDD;
+	ret->ecolor.a = 0xFF;
+	ret->x = x;
+	ret->y = y;
 	ret->w = 80;
 	ret->h = 140;
 	ret->stripes = 0;
@@ -130,12 +128,16 @@ mendel * mendel_breed(mendel *m, mendel *mo){
 	for(int i = 0; i < GENE_NUM; ++i){
 		ret->proc[i] = 0;
 	}
-	SDL_Log("####### mendel_breed endish\n");
-	mendel_express(ret);
+	ret->chr = chr;
+	mendel_express(ret);	
 	print_source(ret->chr);
 	mendel_print_proc(ret);
-	SDL_Log("####### mendel_breed end\n");
+
 	return ret;
+}
+
+mendel * mendel_breed(mendel *m, mendel *mo){
+	return mendel_init((m->x + mo->x) / 2, (m->y + mo->y) / 2, chrom_breed(m->chr, mo->chr));
 }
 
 void mendel_checkx(mendel *m, world *w){
@@ -402,7 +404,9 @@ void mendel_draw(mendel *m){
 
 	r.x = m->x; r.y = m->y; r.w=m->w; r.h=m->h;
 	r.x = m->x + m->w *3/10;
+	r.x += ((m->state & RIGHT) ? 1 : (m->state & LEFT) ? -1 : 0) * m->w/6;
 	r.y = m->y + m->w *3/10 + dy;
+	r.y += ((m->state & DOWN) ? 1 : (m->state & UP) ? -1 : 0) * m->w/6;
 	r.w = m->w * .4;
 	r.h = m->w *.4;
 
