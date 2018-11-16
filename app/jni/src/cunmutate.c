@@ -113,12 +113,15 @@ void eloop(){
 				mc->state |= BREED;
 			}
 			else if(e.key.keysym.sym == SDLK_k){
-				mendel *m = mc;
-				while((m = m->next)){ /* Need to free killed mendel yet */
-					if(m->next == mc){
-						mc = m;
-						mc->next = mc->next->next;
-						break;
+				if(mc->next != mc){
+					mendel *m = mc;
+					while((m = m->next)){
+						if(m->next == mc){
+							mendel_free(mc);
+							mc = m;
+							mc->next = mc->next->next;
+							break;
+						}
 					}
 				}
 			}
@@ -190,8 +193,9 @@ int main(){
 	init_genemap();
 	srand(6);
 
-	mc = mendel_init(100, 100, chrom_chain_init(6, chroma, chromb, chromc, chromd, chrome, chromf));
-	mc->next = mendel_init(130, 100, chrom_chain_init(6, chroma, chromb, chromd, chromd, chrome, chromf));
+	/* Mendels are in a looped singly linked list */
+	mc = mendel_init(140, 100, chrom_chain_init(6, chroma, chromb, chromc, chromd, chrome, chromf));
+	mc->next = mendel_init(180, 100, chrom_chain_init(6, chroma, chromb, chromd, chromd, chrome, chromf));
 	mc->next->next = mc;
 	
 	init();

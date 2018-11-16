@@ -202,7 +202,7 @@ void print_source(chrom *chr){
 		putchar('\n');
 		SDL_Log("Chromosome %d\n", j);
 		++j;
-	}while(chr = chr->next);
+	}while((chr = chr->next));
 }
 
 int hash_gene(chrom *chr, int i){
@@ -318,8 +318,14 @@ chrom * chrom_chain_init(int num, ...){
 	return ret;
 }
 
-void free_chrom(chrom *chr){
-	free(chr->b);
+void chrom_free(chrom *chr){
+	chrom *c = chr;
+	do{
+		free(c->b);
+		chr = c;
+		c = c->next;
+		free(chr);
+	}while(c);
 }
 
 chrom *chrom_crossover(chrom *x, chrom *y){

@@ -136,6 +136,11 @@ mendel *mendel_init(int x, int y, chrom *chr){
 	return ret;
 }
 
+void mendel_free(mendel *m){
+	chrom_free(m->chr);
+	free(m);
+}
+
 mendel * mendel_breed(mendel *m, mendel *mo){
 	return mendel_init((m->x + mo->x) / 2, (m->y + mo->y) / 2, chrom_breed(m->chr, mo->chr));
 }
