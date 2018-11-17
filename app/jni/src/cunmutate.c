@@ -27,7 +27,6 @@ SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Texture *atlas = NULL;
 camera view = {{0, 0, 0, 0}, 1.5f};
-SDL_DisplayMode dispmode;
 
 void camera_project(camera *view, SDL_Rect *r){
 	r->x = (r->x - view->r.x) * view->scale;
@@ -80,12 +79,13 @@ void text_draw(int x, int y, int height, char *s){
 
 int init(){
 	SDL_Surface *surf;
+	SDL_DisplayMode dispmode;
 	SDL_Init(SDL_INIT_VIDEO);
 	if(SDL_GetCurrentDisplayMode(0, &dispmode) == 0){
 		view.r.w = dispmode.w;
 		view.r.h = dispmode.h;
 	}
-	win = SDL_CreateWindow("Unmutate 4.0a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, view.r.w, view.r.h, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("Unmutate 4.0a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, view.r.w, view.r.h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
 	surf = IMG_Load(PATH "atlas.png");
@@ -172,6 +172,12 @@ void eloop(){
 		else if(e.type == SDL_FINGERUP){
 			if(e.tfinger.x > 0.5){
 				mc->state &= ~UP;
+			}
+		}
+		else if(e.type == SDL_WINDOWEVENT){
+			if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
+				view.r.w = e.window.data1;
+				view.r.h = e.window.data2;
 			}
 		}
 	}
