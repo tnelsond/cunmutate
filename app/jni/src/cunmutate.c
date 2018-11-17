@@ -18,10 +18,27 @@
 
 #define PI 3.1415
 
+typedef struct camera{
+	SDL_Rect r;
+	float scale;
+}camera;
+
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Texture *atlas = NULL;
-SDL_Rect camera = {0, 0, 0, 0};
+camera view = {{0, 0, 0, 0}, 1.5f};
+SDL_DisplayMode dispmode;
+
+void camera_project(camera *view, SDL_Rect *r){
+	r->x = (r->x - view->r.x) * view->scale;
+	r->y = (r->y - view->r.y) * view->scale;
+	r->w *= view->scale;
+	r->h *= view->scale;
+}
+
+float camera_scale(camera *view, int x){
+	return view->scale * x;
+}
 
 char bufs[32];
 
@@ -62,14 +79,13 @@ void text_draw(int x, int y, int height, char *s){
 #include "mendel.h"
 
 int init(){
-	SDL_DisplayMode dispmode;
 	SDL_Surface *surf;
 	SDL_Init(SDL_INIT_VIDEO);
 	if(SDL_GetCurrentDisplayMode(0, &dispmode) == 0){
-		camera.w = dispmode.w;
-		camera.h = dispmode.h;
+		view.r.w = dispmode.w;
+		view.r.h = dispmode.h;
 	}
-	win = SDL_CreateWindow("Unmutate 2.4", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.w, camera.h, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("Unmutate 4.0a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, view.r.w, view.r.h, SDL_WINDOW_SHOWN);
 	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
 	surf = IMG_Load(PATH "atlas.png");
@@ -144,42 +160,57 @@ void eloop(){
 				mc->state &= ~RIGHT;
 			}
 		}
-		else if(e.type == SDL_MOUSEMOTION){
-			mc->vx += e.motion.xrel;
-			mc->vy += e.motion.yrel;
+		else if(e.type == SDL_MULTIGESTURE){
+			view.r.w *= 1 + e.mgesture.dDist;
+			SDL_Log("########## %f", e.mgesture.dDist);
+		}
+		else if(e.type == SDL_FINGERDOWN){
+			if(e.tfinger.x > 0.5){
+				mc->state |= UP;
+			}
+		}
+		else if(e.type == SDL_FINGERUP){
+			if(e.tfinger.x > 0.5){
+				mc->state &= ~UP;
+			}
 		}
 	}
+
+	view.r.x = mc->x - (view.r.w / 2) / view.scale;
+	view.r.y = mc->y - (view.r.h / 2) / view.scale;
+
+	/* Update Mendels */
+	int i = 0;
+	mendel *m = mc;
+	do{
+		++i;
+		if(m->state != ONGROUND || m->vx != 0)
+			mendel_update(m, w);
+		m = m->next;
+	}while(m != mc);
+
+	/* Draw everything */
 
 	SDL_SetRenderDrawColor(ren, 0x99, 0xFF, 0xFF, 0xFF );
 	SDL_RenderClear(ren);
 
-
-	int i = 0;
-	mendel *m = mc->next;
-	do{
-		++i;
-		mendel_draw(m);
-		m = m->next;
-	}while(m != mc->next);
-	world_draw(w);
-
 	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
 	SDL_Rect r = {mc->x + mc->w / 2 - 25, mc->y - 50, 50, 50};
+	camera_project(&view, &r);
 	SDL_RenderCopy(ren, atlas, &rtriangle, &r);
 
 	SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF );
 	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
 	sprintf(bufs, "Mendels: %d\n", i);
 	text_draw(10, 50, 34, bufs);
-
-	/* Update Mendels */
-	m = mc;
-	do{
-		if(m->state != ONGROUND || m->vx != 0)
-			mendel_update(m, w);
-		m = m->next;
-	}while(m != mc);
 	
+	m = mc->next;
+	do{
+		mendel_draw(m, &view);
+		m = m->next;
+	}while(m != mc->next);
+
+	world_draw(w, &view);
 
 	SDL_RenderPresent(ren);
 	#ifdef __EMSCRIPTEN__

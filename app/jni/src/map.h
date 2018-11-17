@@ -69,10 +69,9 @@ void world_close(world *w){
 	free(w);
 }
 
-void world_draw(world *w){
+void world_draw(world *w, camera *view){
 	int i, j;
 	SDL_Rect r;
-
 
 	SDL_SetTextureColorMod(atlas, 0x33, 0x11, 0x00);		
 
@@ -81,8 +80,10 @@ void world_draw(world *w){
 	for(j=0; j<w->h; ++j){
 		for(i=0; i<=w->w; ++i){
 			if(w->map[j][i] != AIR){
-				r.x = i * w->tilesize;
-				r.y = j * w->tilesize;
+				r.x = (i * w->tilesize);
+				r.y = (j * w->tilesize);
+				r.w = r.h = w->tilesize;
+				camera_project(view, &r);
 				SDL_RenderCopy(ren, atlas, &rblock, &r);
 			}
 		}

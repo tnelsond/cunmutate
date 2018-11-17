@@ -303,6 +303,7 @@ void mendel_update(mendel *m, world *w){
 	if(m->state & ONGROUND){
 		if(m->state & UP){
 			m->vy = -m->jump;
+			//m->state &= ~UP;
 		}
 	}
 
@@ -328,7 +329,9 @@ void mendel_update(mendel *m, world *w){
 					}
 					mendel *mnew = mendel_breed(m, mo);
 					if(mnew){
-						mnew->vy -= 20;
+						mnew->vy = 1;
+						mendel_checky(mnew, w);
+						mnew->vy = -20;
 						mnew->next = m->next;	
 						m->next = mnew;
 					}
@@ -350,31 +353,31 @@ void mendel_update(mendel *m, world *w){
 	mendel_checky(m, w);
 }
 
-void mendel_draw(mendel *m){
+void mendel_draw(mendel *m, camera *view){
 	SDL_Rect r;
+	SDL_Rect rp = {m->x, m->y, m->w, m->h};
+	camera_project(view, &rp);
 
-	int dy;
 
-	r.x = m->x + m->w / 4;
-	r.y = m->y + m->w * 0.9;
-	r.w = m->w/3;
-	r.h = m->h - m->w * 0.9;
 	float angle = (m->x*45/(m->h - m->w)) % 90;
 	if(angle > 45){
 		angle = 90 - angle;
 	}
 
-	dy = r.h - cos(angle * PI / 180) * r.h;
-	r.y += dy;
+	r.w = rp.w/3;
+	r.h = rp.h - rp.w * 0.8;
+	rp.y += (r.h - cos(angle * PI / 180) * r.h);
+	r.x = rp.x + rp.w / 4;
+	r.y = rp.y + rp.w * 0.8;
 
-	SDL_Point center = {r.w / 2, r.h / 10};
+	SDL_Point center = {r.w / 2, r.w / 2};
 	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
 	SDL_RenderCopyEx(ren, atlas, &rleg, &r, angle, &center, 0);
 	if(m->stripes){
 		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
 		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, angle, &center, 0);
 	}
-	r.x = m->x + m->w / 2;
+	r.x = rp.x + rp.w / 2;
 	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
 	SDL_RenderCopyEx(ren, atlas, &rleg, &r, -angle, &center, 0);
 	if(m->stripes){
@@ -382,10 +385,10 @@ void mendel_draw(mendel *m){
 		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, -angle, &center, 0);
 	}
 
-	r.x = m->x;
-	r.y = m->y + dy;
-	r.w=m->w;
-	r.h=m->w;
+	r.x = rp.x;
+	r.y = rp.y;
+	r.w=rp.w;
+	r.h=rp.w;
 	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
 	SDL_RenderCopy(ren, atlas, &rbodycircle, &r);
 
@@ -394,10 +397,10 @@ void mendel_draw(mendel *m){
 		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rbodystripes : &rbodyspots, &r, 0, NULL, 0);
 	}
 
-	r.x = m->x + m->w/2 - m->w/6;
-	r.y = m->y - m->w/4 + dy;
-	r.w=m->w/3;
-	r.h=m->w/3;
+	r.x = rp.x + rp.w/2 - rp.w/6;
+	r.y = rp.y - rp.w/4;
+	r.w=rp.w/3;
+	r.h=rp.w/3;
 	if(m->sex == MALE){
 		SDL_SetTextureColorMod(atlas, 0x77, 0x77, 0x55);		
 		SDL_RenderCopyEx(ren, atlas, &rhorn, &r, 0, NULL, 0);
@@ -407,13 +410,12 @@ void mendel_draw(mendel *m){
 		SDL_RenderCopyEx(ren, atlas, &rbow, &r, 0, NULL, 0);
 	}
 
-	r.x = m->x; r.y = m->y; r.w=m->w; r.h=m->h;
-	r.x = m->x + m->w *3/10;
-	r.x += ((m->state & RIGHT) ? 1 : (m->state & LEFT) ? -1 : 0) * m->w/6;
-	r.y = m->y + m->w *3/10 + dy;
-	r.y += ((m->state & DOWN) ? 1 : (m->state & UP) ? -1 : 0) * m->w/6;
-	r.w = m->w * .4;
-	r.h = m->w *.4;
+	r.x = rp.x + rp.w *3/10;
+	r.x += ((m->state & RIGHT) ? 1 : (m->state & LEFT) ? -1 : 0) * rp.w/10;
+	r.y = rp.y + rp.w *3/10;
+	r.y += ((m->state & DOWN) ? 1 : (m->state & UP) ? -1 : 0) * rp.w/10;
+	r.w = rp.w * .4;
+	r.h = rp.w *.4;
 
 	SDL_SetTextureColorMod(atlas, m->ecolor.r, m->ecolor.g, m->ecolor.b);		
 	SDL_RenderCopyEx(ren, atlas, &reye, &r, 0, NULL, 0);
