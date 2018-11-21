@@ -107,7 +107,7 @@ void mendel_express(mendel *m){
 }
 
 mendel *mendel_init(int x, int y, chrom *chr){
-	SDL_Log("####### mendel_init\n");
+	/*SDL_Log("####### mendel_init\n");*/
 	mendel *ret = malloc(sizeof(mendel));
 	ret->color.r = 0xFF;
 	ret->color.g = 0xFF;
@@ -312,16 +312,16 @@ void mendel_update(mendel *m, world *w){
 	}
 
 	if(m->state & BREED){
-		SDL_Log("Registering...\n");
+		/*SDL_Log("Registering...\n");*/
 		m->state &= ~BREED;
 		mendel *mo = m;
 		while((mo = mo->next)){
 			if(mo == m){
 				break;
 			}
-			SDL_Log("Looping\n");
+			/*SDL_Log("Looping\n");*/
 			if(mendel_collide(m, mo)){
-				SDL_Log("Collision\n");
+				/*SDL_Log("Collision\n");*/
 				if(m->sex + mo->sex == MALE + FEMALE){
 					if(m->x > mo->x){
 						m->vx = 10;

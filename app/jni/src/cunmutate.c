@@ -23,6 +23,11 @@ typedef struct camera{
 	float scale;
 }camera;
 
+struct {
+	SDL_FingerID jid;
+	float x, y;
+}touch;
+
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Texture *atlas = NULL;
@@ -34,6 +39,7 @@ void camera_project(camera *view, SDL_Rect *r){
 	r->w *= view->scale;
 	r->h *= view->scale;
 }
+
 
 float camera_scale(camera *view, int x){
 	return view->scale * x;
@@ -101,8 +107,54 @@ int init(){
 }
 
 mendel *mc = NULL;
-
 int quit = 0;
+
+void touch_event(SDL_Event *e){
+	if(e->type == SDL_MULTIGESTURE){
+			view.r.w *= 1 + e->mgesture.dDist;
+			SDL_Log("########## %f", e->mgesture.dDist);
+		}
+	else if(e->type == SDL_FINGERDOWN){
+		if(e->tfinger.x > 0.5){
+			if(e->tfinger.y > 0.5){
+				mc->state |= UP;
+			}
+			else{
+				mc->state |= BREED;
+			}
+		}
+		else{
+			touch.jid = e->tfinger.touchId;
+			touch.x = e->tfinger.x;
+			touch.y = e->tfinger.y;
+		}
+	}
+	else if(e->type == SDL_FINGERUP){
+		if(touch.jid == e->tfinger.touchId){
+			mc->state &= ~(LEFT|RIGHT);
+		}
+		if(e->tfinger.x > 0.5){
+			mc->state &= ~UP;
+		}
+	}
+	if(e->type == SDL_FINGERMOTION){
+		if(touch.jid == e->tfinger.touchId){
+			if(e->tfinger.x <= 0.5){
+				if(e->tfinger.x > touch.x + 0.02){
+					mc->state &= ~LEFT;
+					mc->state |= RIGHT;
+				}
+				else if(e->tfinger.x < touch.x - 0.02){
+					mc->state &= ~RIGHT;
+					mc->state |= LEFT;
+				}
+				else{
+					mc->state &= ~(LEFT|RIGHT);
+				}
+			}
+		}
+	}
+}
 
 void eloop(){
 	SDL_Event e;
@@ -160,20 +212,11 @@ void eloop(){
 				mc->state &= ~RIGHT;
 			}
 		}
-		else if(e.type == SDL_MULTIGESTURE){
-			view.r.w *= 1 + e.mgesture.dDist;
-			SDL_Log("########## %f", e.mgesture.dDist);
+
+		else if(e.type == SDL_MULTIGESTURE || e.type == SDL_FINGERDOWN || e.type == SDL_FINGERUP || e.type == SDL_FINGERMOTION){
+			touch_event(&e);
 		}
-		else if(e.type == SDL_FINGERDOWN){
-			if(e.tfinger.x > 0.5){
-				mc->state |= UP;
-			}
-		}
-		else if(e.type == SDL_FINGERUP){
-			if(e.tfinger.x > 0.5){
-				mc->state &= ~UP;
-			}
-		}
+		
 		else if(e.type == SDL_WINDOWEVENT){
 			if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
 				view.r.w = e.window.data1;

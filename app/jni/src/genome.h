@@ -1,5 +1,5 @@
-#define GENEMALE "cow a boy. This is my super lonJ"
-#define GENEFEMALE "c sex autosome and whatever blah blah garJ"
+#define GENEMALE "cYou shall offer one male goat for a sin offering, and two male lambs a year old for a sacrifice of peace offerings.J"
+#define GENEFEMALE "cHe answered, \"Haven't you read that he who made them from the beginning made them male and female, 5and said, 'For this cause a man shall leave his father and mother, and shall join to his wife; and the two shall become one flesh?'J"
 #define GENEGROWTH "come Thou Fountof3very BlEssInG J"
 #define GENEGROWTH2 "czzome my Fountof3very BlEssInGs J"
 #define GENEPIGMENT "cNow therefore send me a man skillful to work in gold, and in silver, and in brass, and in iron, and in purple, and crimson, and blue, and who knows how to engrave engravings, to be with the skillful men who are with me in J."
