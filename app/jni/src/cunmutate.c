@@ -231,8 +231,20 @@ int main(){
 	srand(6);
 
 	/* Mendels are in a looped singly linked list */
-	mc = mendel_init(140, 100, chrom_chain_init(6, chroma, chromb, chromc, chromd, chrome, chromf));
-	mc->next = mendel_init(180, 100, chrom_chain_init(6, chroma, chromb, chromd, chromd, chrome, chromf));
+	mc = mendel_init(160, 100, chrom_chain_init(6,
+		"AAAAAAAA" GENEMALE "GGGGGGGGGG",
+		"AAAAAA" GENEFEMALE "GGGGGG",
+		"AAAAAA" GENEGROWTH "GGGGGG",
+		"AAAAAA" GENEGROWTH "GGGGGG",
+		"AAAAAA" GENEGROWTH "GGGGGG",
+		"AAAAAA" GENEGROWTH2 "GGGGGG"));
+	mc->next = mendel_init(170, 100, chrom_chain_init(6,
+		"AAAAAAAA" GENEFEMALE "GGGGGGGGGG",
+		"AAAAAA" GENEFEMALE "GGGGGG",
+		"AAAAAA" GENEGROWTH "GGGGGG",
+		"AAAAAA" GENEGROWTH2 "GGGGGG",
+		"AAAAAA" GENEGROWTH2 "GGGGGG",
+		"AAAAAA" GENEGROWTH2 "GGGGGG"));
 	mc->next->next = mc;
 	
 	init();

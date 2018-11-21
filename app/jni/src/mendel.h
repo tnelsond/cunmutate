@@ -35,21 +35,22 @@ void mendel_print_proc(mendel *m){
 void mendel_express(mendel *m){
 	hash_chrom(m->chr, m->proc);
 
-	if(m->proc[9]){
+	if(m->proc[2]){
 		m->stripes = 2;
 	}
-	else if(m->proc[5]){
+	else if(m->proc[1]){
 		m->stripes = 1;
 	}
 
-	if(m->proc[10]){
+	if(m->proc[4]){
 		m->color.r = 0x45 * m->proc[6];
-		m->color.g = 0x45 * m->proc[3];
-		m->color.b = 0x45 * m->proc[4];
+		m->color.g = 0x45 * m->proc[7];
+		m->color.b = 0x45 * m->proc[8];
 
-		m->color2.r = 0x99 - m->proc[7] * 0x44;
-		m->color2.g = 0x99 - m->proc[7] * 0x44;
-		m->color2.b = 0x88 - m->proc[7] * 0x44;
+		m->color2.r = 0x99 - m->proc[9] * 0x44;
+		m->color2.g = 0x99 - m->proc[9] * 0x44;
+		m->color2.b = 0x88 - m->proc[9] * 0x44;
+		
 
 		if(m->proc[13]){
 			m->ecolor.r = 0x65;
@@ -76,16 +77,16 @@ void mendel_express(mendel *m){
 		m->h = m->w * 1.3;
 	}
 
-	if(m->proc[3] == 0){
+	if(m->proc[1] == 0){
 		m->w = 40;
 	}
-	else if(m->proc[5] == 1){
+	else if(m->proc[2] == 1){
 		m->w = 70;
 	}
-	else if(m->proc[5] == 2){
+	else if(m->proc[2] == 2){
 		m->w = 90;
 	}
-	else if(m->proc[5] >= 3){
+	else if(m->proc[2] >= 3){
 		m->w = 140;
 	}
 
@@ -97,9 +98,12 @@ void mendel_express(mendel *m){
 			m->sex = MALE;
 		}
 	}
-	else if(m->proc[1] >= 2){
+	else if(m->proc[0] >= 2){
 		m->sex = FEMALE;
 	}
+
+	if(m->h < m->w)
+		m->h = m->w;
 }
 
 mendel *mendel_init(int x, int y, chrom *chr){
@@ -358,31 +362,33 @@ void mendel_draw(mendel *m, camera *view){
 	SDL_Rect rp = {m->x, m->y, m->w, m->h};
 	camera_project(view, &rp);
 
+	if(m->h > m->w){
+		r.w = rp.w/3;
+		r.h = rp.h - rp.w * 0.8;
 
-	float angle = (m->x*45/(m->h - m->w)) % 90;
-	if(angle > 45){
-		angle = 90 - angle;
-	}
+		float angle = (m->x*90/(r.h - r.w /2)) % 90;
+		if(angle > 45){
+			angle = 90 - angle;
+		}
 
-	r.w = rp.w/3;
-	r.h = rp.h - rp.w * 0.8;
-	rp.y += (r.h - cos(angle * PI / 180) * r.h);
-	r.x = rp.x + rp.w / 4;
-	r.y = rp.y + rp.w * 0.8;
+		rp.y += ((r.h - r.w/2) - cos(angle * PI / 180) * (r.h - r.w /2));
+		r.x = rp.x + rp.w / 4;
+		r.y = rp.y + rp.w * 0.8;
 
-	SDL_Point center = {r.w / 2, r.w / 2};
-	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
-	SDL_RenderCopyEx(ren, atlas, &rleg, &r, angle, &center, 0);
-	if(m->stripes){
-		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
-		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, angle, &center, 0);
-	}
-	r.x = rp.x + rp.w / 2;
-	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
-	SDL_RenderCopyEx(ren, atlas, &rleg, &r, -angle, &center, 0);
-	if(m->stripes){
-		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
-		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, -angle, &center, 0);
+		SDL_Point center = {r.w / 2, r.w / 2};
+		SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
+		SDL_RenderCopyEx(ren, atlas, &rleg, &r, angle, &center, 0);
+		if(m->stripes){
+			SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
+			SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, angle, &center, 0);
+		}
+		r.x = rp.x + rp.w / 2;
+		SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
+		SDL_RenderCopyEx(ren, atlas, &rleg, &r, -angle, &center, 0);
+		if(m->stripes){
+			SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
+			SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, -angle, &center, 0);
+		}
 	}
 
 	r.x = rp.x;
