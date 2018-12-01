@@ -11,15 +11,39 @@ typedef struct world{
 
 world *w;
 
+char* file_read(const char* filename) {
+        SDL_RWops *rw = SDL_RWFromFile(filename, "r");
+        if (rw == NULL) return NULL;
+
+        Sint64 res_size = SDL_RWsize(rw);
+        char* res = (char*)malloc(res_size + 1);
+
+        Sint64 nb_read_total = 0, nb_read = 1;
+        char* buf = res;
+        while (nb_read_total < res_size && nb_read != 0) {
+                nb_read = SDL_RWread(rw, buf, 1, (res_size - nb_read_total));
+                nb_read_total += nb_read;
+                buf += nb_read;
+        }
+        SDL_RWclose(rw);
+        if (nb_read_total != res_size) {
+                free(res);
+                return NULL;
+        }
+
+        res[nb_read_total] = '\0';
+        return res;
+}
+
 world *world_load(char *path){
 	int r, c, f, i;
-	char buf[1024];
-	SDL_RWops *rw;
+	char *buf;
 	SDL_Log("######## LOADING LEVEL");
 	world *w = malloc(sizeof(world));
 	SDL_Log("######## SDL_RWFromFile");
-	rw = SDL_RWFromFile(path, "r");
-	if(rw == NULL){
+	buf = file_read(path);
+	printf(buf);
+	if(buf == NULL){
 		SDL_Log("######## FILE '%s' CANNOT BE OPENED!", path);
 		return NULL;
 	}
@@ -27,8 +51,6 @@ world *world_load(char *path){
 
 	r = 0;
 	c = 0;
-
-	SDL_RWread(rw, buf, 1, sizeof(buf));
 
 	sscanf(buf, "r:%d,c:%d,s:%d,g:%f\n", &w->h, &w->w, &w->tilesize, &w->g);
 	SDL_Log("######## r:%d, c:%d, s:%d, g:%f\n", w->h, w->w, w->tilesize, w->g);
@@ -45,7 +67,7 @@ world *world_load(char *path){
 	}
 	while((f = buf[i])){
 		if(f == '\n'){
-			c = 0;
+			c = -1;
 			++r;
 		}
 		else{
@@ -56,7 +78,7 @@ world *world_load(char *path){
 		++i;
 	}
 
-	SDL_RWclose(rw);
+	free(buf);
 	return w;
 }
 
@@ -78,8 +100,14 @@ void world_draw(world *w, camera *view){
 	r.w = r.h = w->tilesize;
 
 	for(j=0; j<w->h; ++j){
-		for(i=0; i<=w->w; ++i){
+		for(i=0; i<w->w; ++i){
 			if(w->map[j][i] != AIR){
+				if(w->map[j][i] == GRASS){
+					SDL_SetTextureColorMod(atlas, 0x33, 0x55, 0x00);		
+				}
+				else{
+					SDL_SetTextureColorMod(atlas, 0x33, 0x11, 0x00);		
+				}
 				r.x = (i * w->tilesize);
 				r.y = (j * w->tilesize);
 				r.w = r.h = w->tilesize;
