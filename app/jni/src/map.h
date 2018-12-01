@@ -13,7 +13,7 @@ world *w;
 
 world *world_load(char *path){
 	int r, c, f, i;
-	char buf[512];
+	char buf[1024];
 	SDL_RWops *rw;
 	SDL_Log("######## LOADING LEVEL");
 	world *w = malloc(sizeof(world));
@@ -28,7 +28,7 @@ world *world_load(char *path){
 	r = 0;
 	c = 0;
 
-	SDL_RWread(rw, buf, sizeof(buf), sizeof(buf));
+	SDL_RWread(rw, buf, 1, sizeof(buf));
 
 	sscanf(buf, "r:%d,c:%d,s:%d,g:%f\n", &w->h, &w->w, &w->tilesize, &w->g);
 	SDL_Log("######## r:%d, c:%d, s:%d, g:%f\n", w->h, w->w, w->tilesize, w->g);

@@ -133,7 +133,7 @@ amino get_amino(chrom *chr, int i){
 int find_homologue(chrom *x, chrom *y, int * xi){
 	int yi, i;
 	int match = 0;
-	int grainsize = 21;
+	int grainsize = 29;
 	int oldxi = *xi;
 	while(!match){
 		for(yi=0; yi < y->len - grainsize; ++yi){

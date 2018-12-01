@@ -270,24 +270,27 @@ void eloop(){
 }
 
 int main(){
+	SDL_Log("Hi");
 	init_genemap();
 	srand(6);
 
+	SDL_Log("Hi");
+
 	/* Mendels are in a looped singly linked list */
 	mc = mendel_init(160, 100, chrom_chain_init(6,
-		"AAAAAAAA" GENEMALE "GGGGGGGGGG",
-		"AAAAAA" GENEFEMALE "GGGGGG",
-		"AAAAAA" GENEGROWTH "GGGGGG",
-		"AAAAAA" GENEGROWTH "GGGGGG",
-		"AAAAAA" GENEGROWTH "GGGGGG",
-		"AAAAAA" GENEGROWTH2 "GGGGGG"));
+		"AAAAAAAA" gXs "GGGGGGGGGG",
+		"AAAAAA" gXs "GGGGGG",
+		"AAAAAA" gBs "GGGGGG",
+		"AAAAAA" gBs "GGGGGG",
+		"AAAAAA" gKs gIs "GGGGGG",
+		"AAAAAA" gaws gIs "GGGGGG"));
 	mc->next = mendel_init(170, 100, chrom_chain_init(6,
-		"AAAAAAAA" GENEFEMALE "GGGGGGGGGG",
-		"AAAAAA" GENEFEMALE "GGGGGG",
+		"AAAAAAAA" gXs "GGGGGGGGGG",
+		"AAAAAA" gYs "GGGGGG",
 		"AAAAAA" GENEGROWTH "GGGGGG",
 		"AAAAAA" GENEGROWTH2 "GGGGGG",
-		"AAAAAA" GENEGROWTH2 "GGGGGG",
-		"AAAAAA" GENEGROWTH2 "GGGGGG"));
+		"AAAAAA" gDs gIs "GGGGGG",
+		"AAAAAA" gkbrs "GGGGGG"));
 	mc->next->next = mc;
 	
 	init();

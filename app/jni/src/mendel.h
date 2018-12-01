@@ -11,8 +11,8 @@
 #define FEMALE 2
 
 typedef struct mendel{
-	SDL_Color color;
-	SDL_Color color2;
+	SDL_Color color; // Eumelanin
+	SDL_Color color2; // Phoemelanin
 	SDL_Color ecolor;
 	int x, y, w, h;
 	int stripes;
@@ -35,70 +35,77 @@ void mendel_print_proc(mendel *m){
 void mendel_express(mendel *m){
 	hash_chrom(m->chr, m->proc);
 
-	if(m->proc[2]){
+	if(m->proc[gaw]){
 		m->stripes = 2;
 	}
-	else if(m->proc[1]){
+	else if(m->proc[gAy]){
 		m->stripes = 1;
 	}
 
-	if(m->proc[4]){
-		m->color.r = 0x45 * m->proc[6];
-		m->color.g = 0x45 * m->proc[7];
-		m->color.b = 0x45 * m->proc[8];
-
-		m->color2.r = 0x99 - m->proc[9] * 0x44;
-		m->color2.g = 0x99 - m->proc[9] * 0x44;
-		m->color2.b = 0x88 - m->proc[9] * 0x44;
-		
-
-		if(m->proc[13]){
-			m->ecolor.r = 0x65;
-			m->ecolor.g = 0x65 + 0x44*m->proc[13];
-		}
-		else if(m->proc[14]){
-			m->ecolor.r = 0xFF;
-			m->ecolor.g = 0x22;
-		}
-		else{
-			m->ecolor.r = 0x55;
-			m->ecolor.g = 0x55;
-		}
-		m->ecolor.b = 0x70 * m->proc[8];
+	if(m->proc[gI] == 0){
+		m->color2.r = 0xFF;
+		m->color2.g = 0xEE;
+		m->color2.b = 0xDD;
 	}
-
-	if(m->proc[12]){
-		m->h = m->w * 2;
-	}
-	else if(m->proc[11]){
-		m->h = m->w * 3;
+	else if(m->proc[gI] == 1){
+		m->color2.r = 0xDD;
+		m->color2.g = 0xAA;
+		m->color2.b = 0x88;
 	}
 	else{
-		m->h = m->w * 1.3;
+		m->color2.r = 0xBB;
+		m->color2.g = 0x44;
+		m->color2.b = 0;
 	}
 
-	if(m->proc[1] == 0){
-		m->w = 40;
+	/* Eumelanin production possible */
+	if(m->proc[gB]){
+		if(m->proc[gD]){
+			m->color.r = m->color.g = m->color.b = 0x11;
+			m->ecolor.r = 0x99;
+			m->ecolor.g = 0x66;
+			m->ecolor.b = 0x44;
+		}
+		else{
+			m->color.r = m->color.g = m->color.b = 0x55;
+			m->ecolor.r = 0x44;
+			m->ecolor.g = 0x22;
+			m->ecolor.b = 0x00;
+		}
 	}
-	else if(m->proc[2] == 1){
-		m->w = 70;
+	else{
+		if(m->proc[gD]){
+			m->color.r = 0x88;
+			m->color.g = 0x77;
+			m->color.b = 0x55;
+			m->ecolor.r = m->ecolor.g = 0xAA;
+			m->ecolor.b = 0xFF;
+		}
+		else{
+			m->color.r = 0xCC;
+			m->color.g = 0xBB;
+			m->color.b = 0xAA;
+			m->ecolor.r = m->ecolor.g = 0x77;
+			m->ecolor.b = 0x44;
+		}
 	}
-	else if(m->proc[2] == 2){
-		m->w = 90;
-	}
-	else if(m->proc[2] >= 3){
-		m->w = 140;
-	}
+	
+	/*if(!m->proc[gK] && !m->proc[gkbr]){
+		m->color = m->color2;
+	}*/
+
+	m->w = 100;
+	m->h = 200;
 
 	m->speed = 1;
 	m->jump = 35;
 
-	if(m->proc[0] == 1){
-		if(m->proc[1] == 1){
+	if(m->proc[gX] == 1){
+		if(m->proc[gY] == 1){
 			m->sex = MALE;
 		}
 	}
-	else if(m->proc[0] >= 2){
+	else if(m->proc[gX] >= 2){
 		m->sex = FEMALE;
 	}
 
