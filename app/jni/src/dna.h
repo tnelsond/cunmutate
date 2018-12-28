@@ -48,6 +48,8 @@
 typedef unsigned char bases;
 typedef unsigned char amino;
 
+#define GRAINSIZE 29
+
 amino aminos[] = {
 /*   UU   UC   UA   UG   CU   CC   CA   CG   AU   AC   AA   AG   GU   GC   GA   GG */
 /*U*/PHE, PHE, LEU, LEU, SER, SER, SER, SER, TYR, TYR, STP, STP, CYS, CYS, STP, TRP,
@@ -86,7 +88,7 @@ bases get_base(chrom *chr, int i){
 }
 
 bases get_triplet(chrom *chr, int i){
-	if((i + 2) > chr->len){
+	if((i + 2) >= chr->len){
 		return -1;
 	}
 	if((i % 4) == 0){
@@ -130,19 +132,23 @@ amino get_amino(chrom *chr, int i){
 	return aminos[get_triplet(chr, i)];
 }
 
+/* Fix infinite loop please */
 int find_homologue(chrom *x, chrom *y, int * xi){
 	int yi, i;
 	int match = 0;
-	int grainsize = 29;
 	int oldxi = *xi;
+	if((GRAINSIZE > x->len) || (GRAINSIZE > y->len)){
+		return 0;
+	}
+	SDL_Log("#### AM I STUCK?");
 	while(!match){
-		for(yi=0; yi < y->len - grainsize; ++yi){
-			for(i=0; i < grainsize; ++i){
+		for(yi=0; yi < y->len - GRAINSIZE; ++yi){
+			for(i=0; i < GRAINSIZE; ++i){
 				if(get_base(x, *xi + i) != get_base(y, yi + i)){
 					break;
 				}
 			}
-			if(i == grainsize){
+			if(i == GRAINSIZE){
 				match = yi + 1;
 			}
 			if(abs(match - *xi) < abs(yi - *xi)){
@@ -150,7 +156,7 @@ int find_homologue(chrom *x, chrom *y, int * xi){
 			}
 		}
 		*xi = *xi + 1;
-		if(*xi >= x->len - grainsize){
+		if(*xi >= x->len - GRAINSIZE){
 			*xi = 0;
 		}
 		if(*xi == oldxi){
@@ -158,8 +164,9 @@ int find_homologue(chrom *x, chrom *y, int * xi){
 		} 
 	}
 	if(!match){
-		*xi = match;
+		*xi = 0;
 	}
+	SDL_Log("#### No I'm not Stuck.");
 	return match;
 }
 
@@ -330,9 +337,8 @@ void chrom_free(chrom *chr){
 
 chrom *chrom_crossover(chrom *x, chrom *y){
 	int i, xe, ys;
-	int grainsize = 21;
 	chrom *ret = malloc(sizeof(chrom));
-	xe = rand() % (x->len - grainsize);
+	xe = rand() % (x->len - GRAINSIZE - 1);
 	ys = find_homologue(x, y, &xe);
 	ret->len = xe + y->len - ys;
 	/*
@@ -343,7 +349,7 @@ chrom *chrom_crossover(chrom *x, chrom *y){
 	putchar('@');
 	putchar('\n');
 	*/
-	ret->b = malloc(sizeof(bases)*ret->len/4);
+	ret->b = malloc(sizeof(bases)*ret->len/4 + 0.9); /* Maybe make it so it rounds up */
 
 	/* DEBUG */
 	x->split = xe;
@@ -394,7 +400,7 @@ chrom *chrom_breed(chrom *x, chrom *y){
 				c = chrom_copy(z);
 		}
 		else{
-			if(z->next){
+			if(z->next){ /* Remove == 97 to make crossover happen again */
 				c = chrom_crossover(z, z->next);
 				SDL_Log("##### chrom_breed CROSSOVER!");
 			}

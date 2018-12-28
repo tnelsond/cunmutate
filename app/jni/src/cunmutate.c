@@ -243,6 +243,14 @@ void eloop(){
 	SDL_SetRenderDrawColor(ren, 0x99, 0xFF, 0xFF, 0xFF );
 	SDL_RenderClear(ren);
 
+	m = mc->next;
+	do{
+		mendel_draw(m, &view);
+		m = m->next;
+	}while(m != mc->next);
+
+	world_draw(w, &view);
+
 	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
 	SDL_Rect r = {mc->x + mc->w / 2 - 25, mc->y - 50, 50, 50};
 	camera_project(&view, &r);
@@ -252,14 +260,6 @@ void eloop(){
 	SDL_SetTextureColorMod(atlas, 0xFF, 0xFF, 0x00);
 	sprintf(bufs, "Mendels: %d\n", i);
 	text_draw(10, 50, 34, bufs);
-	
-	m = mc->next;
-	do{
-		mendel_draw(m, &view);
-		m = m->next;
-	}while(m != mc->next);
-
-	world_draw(w, &view);
 
 	SDL_RenderPresent(ren);
 	#ifdef __EMSCRIPTEN__
@@ -290,7 +290,7 @@ int main(){
 		"AAAAAA" GENEGROWTH "GGGGGG",
 		"AAAAAA" GENEGROWTH2 "GGGGGG",
 		"AAAAAA" gDs gIs "GGGGGG",
-		"AAAAAA" gkbrs "GGGGGG"));
+		"AAAAAA" gkbrs gIs gaws "GGGGGG"));
 	mc->next->next = mc;
 	
 	init();

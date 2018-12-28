@@ -42,7 +42,7 @@ world *world_load(char *path){
 	world *w = malloc(sizeof(world));
 	SDL_Log("######## SDL_RWFromFile");
 	buf = file_read(path);
-	printf(buf);
+	SDL_Log("%s", buf);
 	if(buf == NULL){
 		SDL_Log("######## FILE '%s' CANNOT BE OPENED!", path);
 		return NULL;
