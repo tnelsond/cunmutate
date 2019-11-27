@@ -1,4 +1,4 @@
-#define GENE_NUM 21
+#define GENE_NUM 22
 #define gXs "cHe answered, \"Haven't you read that he who made them from the beginning made them male and female, 5and said, 'For this cause a man shall leave his father and mother, and shall join to his wife; and the two shall become one flesh?'J"
 #define gX 0
 
@@ -91,7 +91,10 @@
 #define GENEPG "cand if you take cranberries and strew them like applesauce, they taste much more like prunes than rhubarb does.J"
 #define GENEPB "cThe sky's awake, so I'm awake, so we have to PLAY!!J"
 
-char *genesrc[GENE_NUM] = {gXs, gYs, gAys, gaws, gats, gBs, gDs, gds, gEms, gEgs, gEhs, gEs, gGs, gHs, gIs, gKs, gkbrs, gMs, gSs, gTs, gTrs};
+#define gCateyes "cThe fool says there is a lion outside, I'll be killed in the streetsJ"
+#define gCateye 21
+
+char *genesrc[GENE_NUM] = {gXs, gYs, gAys, gaws, gats, gBs, gDs, gds, gEms, gEgs, gEhs, gEs, gGs, gHs, gIs, gKs, gkbrs, gMs, gSs, gTs, gTrs, gCateyes};
 
 int genemap[GENE_NUM];
 

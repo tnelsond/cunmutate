@@ -10,6 +10,8 @@
 #define MALE 1
 #define FEMALE 2
 
+#define CATEYE 1
+
 typedef struct mendel{
 	SDL_Color color; // Eumelanin
 	SDL_Color color2; // Phoemelanin
@@ -21,6 +23,7 @@ typedef struct mendel{
 	int jump;
 	float vx, vy;
 	char sex;
+	char eyetype;
 	chrom *chr;
 	struct mendel *next;
 	int proc[GENE_NUM];
@@ -34,6 +37,13 @@ void mendel_print_proc(mendel *m){
 
 void mendel_express(mendel *m){
 	hash_chrom(m->chr, m->proc);
+
+	if(m->proc[gCateye]){
+		m->eyetype = CATEYE;
+	}
+	else{
+		m->eyetype = 0;
+	}
 
 	if(m->proc[gaw]){
 		m->stripes = 2;
@@ -431,7 +441,7 @@ void mendel_draw(mendel *m, camera *view){
 	r.h = rp.w *.4;
 
 	SDL_SetTextureColorMod(atlas, m->ecolor.r, m->ecolor.g, m->ecolor.b);		
-	SDL_RenderCopyEx(ren, atlas, &reye, &r, 0, NULL, 0);
+	SDL_RenderCopyEx(ren, atlas, ((m->eyetype == CATEYE) ? &rcateye : &reye), &r, 0, NULL, 0);
 
 	r.x -= r.w / 4.2;
 	r.y -= r.w / 4.2;

@@ -204,7 +204,7 @@ void print_source(chrom *chr){
 	do{
 		for(i=0; i < chr->len; i+=3){
 			b = get_triplet(chr, i);
-			putchar((b < 32) ? (b + 64) : b);
+			putchar((b < 64) ? (b + 64) : b);
 		}
 		putchar('\n');
 		SDL_Log("Chromosome %d\n", j);
@@ -360,7 +360,7 @@ chrom *chrom_crossover(chrom *x, chrom *y){
 	for(i=0; i<xe; ++i){
 		set_base(ret, i, get_base(x, i));
 	}
-	while(ys < y->len){
+	while(ys < y->len){ /* Doublecheck this */
 		set_base(ret, i, get_base(y, ys));
 		++i; ++ys;
 	}
@@ -400,7 +400,7 @@ chrom *chrom_breed(chrom *x, chrom *y){
 				c = chrom_copy(z);
 		}
 		else{
-			if(z->next){ /* Remove == 97 to make crossover happen again */
+			if(z->next){
 				c = chrom_crossover(z, z->next);
 				SDL_Log("##### chrom_breed CROSSOVER!");
 			}

@@ -4,7 +4,7 @@
 #else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#define PATH "assets/"
+#define PATH "../../src/main/assets/"
 #endif
 
 #ifdef __EMSCRIPTEN__
@@ -31,7 +31,7 @@ struct {
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Texture *atlas = NULL;
-camera view = {{0, 0, 0, 0}, 1.5f};
+camera view = {{0, 0, 0, 0}, 1.0f};
 
 void camera_project(camera *view, SDL_Rect *r){
 	r->x = (r->x - view->r.x) * view->scale;
@@ -279,18 +279,18 @@ int main(){
 	/* Mendels are in a looped singly linked list */
 	mc = mendel_init(160, 100, chrom_chain_init(6,
 		"AAAAAAAA" gXs "GGGGGGGGGG",
-		"AAAAAA" gXs "GGGGGG",
-		"AAAAAA" gBs "GGGGGG",
-		"AAAAAA" gBs "GGGGGG",
-		"AAAAAA" gKs gIs "GGGGGG",
-		"AAAAAA" gaws gIs "GGGGGG"));
+		"AAAAAAA" gXs "GGGGGGGG",
+		"AAAAAA" gBs "GGGGGGG",
+		"AAAAAAAAAA" gBs "GGGGGG",
+		"AAAAAA" gKs gIs "GGGGGGGGGGGGGG",
+		"AAAAAA" gaws gIs "GGGGGGG"));
 	mc->next = mendel_init(170, 100, chrom_chain_init(6,
-		"AAAAAAAA" gXs "GGGGGGGGGG",
-		"AAAAAA" gYs "GGGGGG",
-		"AAAAAA" GENEGROWTH "GGGGGG",
-		"AAAAAA" GENEGROWTH2 "GGGGGG",
-		"AAAAAA" gDs gIs "GGGGGG",
-		"AAAAAA" gkbrs gIs gaws "GGGGGG"));
+		"AAAAAAAAAA" gXs "GGGGGGGGGGGGG",
+		"AAAAAA" gYs "GGGGGGGG",
+		"AAAAAA" GENEGROWTH  "GGGGGG",
+		"AAAAAAA" GENEGROWTH2 "Pizza" GENEGROWTH "GGGGGGGGG",
+		"AAAAAAAAAA" gCateyes "lkjaslkdjf" gDs gIs "GGGGGG",
+		"AAAAAAA" gkbrs gIs gaws "GGGGGGGGGGG"));
 	mc->next->next = mc;
 	
 	init();
