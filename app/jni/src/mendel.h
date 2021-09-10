@@ -146,11 +146,11 @@ mendel *mendel_init(int x, int y, chrom *chr){
 	ret->state = ret->speed = ret->jump = 0;
 	ret->vx = ret->vy = 0;
 	ret->sex = 0;
-	for(int i = 0; i < GENE_NUM; ++i){
+	for(int i = 0; i < GENE_NUM-1; ++i){
 		ret->proc[i] = 0;
 	}
 	ret->chr = chr;
-	mendel_express(ret);	
+	mendel_express(ret);
 	print_source(ret->chr);
 	mendel_print_proc(ret);
 

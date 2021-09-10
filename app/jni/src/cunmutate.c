@@ -4,12 +4,13 @@
 #else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#define PATH "../../src/main/assets/"
+#define PATH "assets/"
 #endif
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+
 
 #include <stdlib.h>
 #include <math.h>
