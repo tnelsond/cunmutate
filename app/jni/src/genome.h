@@ -1,4 +1,3 @@
-#define GENE_NUM 22
 #define gXs "cHe answered, \"Haven't you read that he who made them from the beginning made them male and female, 5and said, 'For this cause a man shall leave his father and mother, and shall join to his wife; and the two shall become one flesh?'J"
 #define gX 0
 
@@ -84,17 +83,27 @@
 #define gTr 20
 // gt is the absence I'd assume
 
-#define GENEGROWTH "come Thou Fountof3very BlEssInG J"
-#define GENEGROWTH2 "czzome my Fountof3very BlEssInGs J"
-#define GENEPIGMENT "cNow therefore send me a man skillful to work in gold, and in silver, and in brass, and in iron, and in purple, and crimson, and blue, and who knows how to engrave engravings, to be with the skillful men who are with me in J."
-#define GENEPR "cred is the color of the blood that flowedJ"
-#define GENEPG "cand if you take cranberries and strew them like applesauce, they taste much more like prunes than rhubarb does.J"
-#define GENEPB "cThe sky's awake, so I'm awake, so we have to PLAY!!J"
 
 #define gCateyes "cThe fool says there is a lion outside, I'll be killed in the streetsJ"
 #define gCateye 21
 
-char *genesrc[GENE_NUM] = {gXs, gYs, gAys, gaws, gats, gBs, gDs, gds, gEms, gEgs, gEhs, gEs, gGs, gHs, gIs, gKs, gkbrs, gMs, gSs, gTs, gTrs, gCateyes};
+#define gGrowths "come Thou Fountof3very BlEssInG J"
+#define gGrowth 22 
+#define gGrowth2s "czzome my Fountof3very BlEssInGs J"
+#define gGrowth2 23 
+#define gPigments "cNow therefore send me a man skillful to work in gold, and in silver, and in brass, and in iron, and in purple, and crimson, and blue, and who knows how to engrave engravings, to be with the skillful men who are with me in J."
+#define gPigment 24
+
+#define GENEPRs "cred is the color of the blood that flowedJ"
+#define GENEPR 25
+#define GENEPGs "cand if you take cranberries and strew them like applesauce, they taste much more like prunes than rhubarb does.J"
+#define GENEPG 26
+#define GENEPBs "cThe sky's awake, so I'm awake, so we have to PLAY!!J"
+#define GENEPB 27
+
+#define GENE_NUM 28
+
+char *genesrc[GENE_NUM] = {gXs, gYs, gAys, gaws, gats, gBs, gDs, gds, gEms, gEgs, gEhs, gEs, gGs, gHs, gIs, gKs, gkbrs, gMs, gSs, gTs, gTrs, gCateyes, gGrowths, gGrowth2s, gPigments, GENEPRs, GENEPGs, GENEPBs};
 
 int genemap[GENE_NUM];
 

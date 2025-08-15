@@ -99,6 +99,25 @@ void mendel_express(mendel *m){
 			m->ecolor.b = 0x44;
 		}
 	}
+
+	if(m->proc[GENEPB]){
+		m->color.r *= .8;
+		m->color.g *= .8;
+	}
+	if(m->proc[GENEPR]){
+		m->color.b *= .9;
+		m->color.g *= .9;
+	}
+	if(m->proc[GENEPG]){
+		m->color.r *= .7;
+		m->color.b *= .7;
+	}
+
+	if(m->proc[gPigment] == 0){
+		m->color.r = m->color.g = m->color.b =
+		m->color2.r = m->color2.g = m->color2.b = 0xF0;
+
+	}
 	
 	/*if(!m->proc[gK] && !m->proc[gkbr]){
 		m->color = m->color2;
@@ -106,6 +125,25 @@ void mendel_express(mendel *m){
 
 	m->w = 100;
 	m->h = 200;
+
+	if(m->proc[gGrowth] == 1){
+		m->h *= .8;
+		m->w *= .9;
+	}
+	else if(m->proc[gGrowth] == 0){
+		m->h *= .5;
+		m->w *= .7;
+	}
+	if(m->proc[gGrowth2] == 1){
+		m->h *= .9;
+		m->w *= .8;
+	}
+	else if(m->proc[gGrowth2] == 0){
+		m->h *= .75;
+		m->w *= .8;
+	}
+
+	m->speed = 1;
 
 	m->speed = 1;
 	m->jump = 35;
@@ -375,15 +413,15 @@ void mendel_update(mendel *m, world *w){
 }
 
 void mendel_draw(mendel *m, camera *view){
-	SDL_Rect r;
-	SDL_Rect rp = {m->x, m->y, m->w, m->h};
+	SDL_FRect r;
+	SDL_FRect rp = {m->x, m->y, m->w, m->h};
 	camera_project(view, &rp);
 
 	if(m->h > m->w){
 		r.w = rp.w/3;
 		r.h = rp.h - rp.w * 0.8;
 
-		float angle = (m->x*90/(r.h - r.w /2)) % 90;
+		float angle = ((int)(m->x*90/(r.h - r.w /2))) % 90;
 		if(angle > 45){
 			angle = 90 - angle;
 		}
@@ -392,19 +430,19 @@ void mendel_draw(mendel *m, camera *view){
 		r.x = rp.x + rp.w / 4;
 		r.y = rp.y + rp.w * 0.8;
 
-		SDL_Point center = {r.w / 2, r.w / 2};
+		SDL_FPoint center = {r.w / 2, r.w / 2};
 		SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
-		SDL_RenderCopyEx(ren, atlas, &rleg, &r, angle, &center, 0);
+		SDL_RenderTextureRotated(ren, atlas, &rleg, &r, angle, &center, 0);
 		if(m->stripes){
 			SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
-			SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, angle, &center, 0);
+			SDL_RenderTextureRotated(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, angle, &center, 0);
 		}
 		r.x = rp.x + rp.w / 2;
 		SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
-		SDL_RenderCopyEx(ren, atlas, &rleg, &r, -angle, &center, 0);
+		SDL_RenderTextureRotated(ren, atlas, &rleg, &r, -angle, &center, 0);
 		if(m->stripes){
 			SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
-			SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, -angle, &center, 0);
+			SDL_RenderTextureRotated(ren, atlas, (m->stripes == 1) ? &rlegstripes : &rlegspots, &r, -angle, &center, 0);
 		}
 	}
 
@@ -413,11 +451,11 @@ void mendel_draw(mendel *m, camera *view){
 	r.w=rp.w;
 	r.h=rp.w;
 	SDL_SetTextureColorMod(atlas, m->color.r, m->color.g, m->color.b);		
-	SDL_RenderCopy(ren, atlas, &rbodycircle, &r);
+	SDL_RenderTexture(ren, atlas, &rbodycircle, &r);
 
 	if(m->stripes){
 		SDL_SetTextureColorMod(atlas, m->color2.r, m->color2.g, m->color2.b);		
-		SDL_RenderCopyEx(ren, atlas, (m->stripes == 1) ? &rbodystripes : &rbodyspots, &r, 0, NULL, 0);
+		SDL_RenderTextureRotated(ren, atlas, (m->stripes == 1) ? &rbodystripes : &rbodyspots, &r, 0, NULL, 0);
 	}
 
 	r.x = rp.x + rp.w/2 - rp.w/6;
@@ -426,11 +464,11 @@ void mendel_draw(mendel *m, camera *view){
 	r.h=rp.w/3;
 	if(m->sex == MALE){
 		SDL_SetTextureColorMod(atlas, 0x77, 0x77, 0x55);		
-		SDL_RenderCopyEx(ren, atlas, &rhorn, &r, 0, NULL, 0);
+		SDL_RenderTextureRotated(ren, atlas, &rhorn, &r, 0, NULL, 0);
 	}
 	else if(m->sex == FEMALE){
 		SDL_SetTextureColorMod(atlas, 0xFF, 0x77, 0x00);		
-		SDL_RenderCopyEx(ren, atlas, &rbow, &r, 0, NULL, 0);
+		SDL_RenderTextureRotated(ren, atlas, &rbow, &r, 0, NULL, 0);
 	}
 
 	r.x = rp.x + rp.w *3/10;
@@ -441,13 +479,13 @@ void mendel_draw(mendel *m, camera *view){
 	r.h = rp.w *.4;
 
 	SDL_SetTextureColorMod(atlas, m->ecolor.r, m->ecolor.g, m->ecolor.b);		
-	SDL_RenderCopyEx(ren, atlas, ((m->eyetype == CATEYE) ? &rcateye : &reye), &r, 0, NULL, 0);
+	SDL_RenderTextureRotated(ren, atlas, ((m->eyetype == CATEYE) ? &rcateye : &reye), &r, 0, NULL, 0);
 
 	r.x -= r.w / 4.2;
 	r.y -= r.w / 4.2;
 	r.w *= 1.49;
 	r.h *= 1.49;
 	SDL_SetTextureColorMod(atlas, 0xff, 0xff, 0xff);		
-	SDL_RenderCopyEx(ren, atlas, &reyewhitered, &r, 0, NULL, 0);
+	SDL_RenderTextureRotated(ren, atlas, &reyewhitered, &r, 0, NULL, 0);
 
 }

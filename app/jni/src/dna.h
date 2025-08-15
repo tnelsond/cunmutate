@@ -349,7 +349,7 @@ chrom *chrom_crossover(chrom *x, chrom *y){
 	putchar('@');
 	putchar('\n');
 	*/
-	ret->b = malloc(sizeof(bases)*ret->len/4 + 0.9); /* Maybe make it so it rounds up */
+	ret->b = malloc(sizeof(bases)*((ret->len+3)/4));
 
 	/* DEBUG */
 	x->split = xe;

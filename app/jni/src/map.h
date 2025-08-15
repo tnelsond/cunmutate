@@ -12,20 +12,20 @@ typedef struct world{
 world *w;
 
 char* file_read(const char* filename) {
-        SDL_RWops *rw = SDL_RWFromFile(filename, "r");
+        SDL_IOStream *rw = SDL_IOFromFile(filename, "r");
         if (rw == NULL) return NULL;
 
-        Sint64 res_size = SDL_RWsize(rw);
+        Sint64 res_size = SDL_GetIOSize(rw);
         char* res = (char*)malloc(res_size + 1);
 
         Sint64 nb_read_total = 0, nb_read = 1;
         char* buf = res;
         while (nb_read_total < res_size && nb_read != 0) {
-                nb_read = SDL_RWread(rw, buf, 1, (res_size - nb_read_total));
+                nb_read = SDL_ReadIO(rw, buf, (res_size - nb_read_total));
                 nb_read_total += nb_read;
                 buf += nb_read;
         }
-        SDL_RWclose(rw);
+        SDL_CloseIO(rw);
         if (nb_read_total != res_size) {
                 free(res);
                 return NULL;
@@ -93,7 +93,7 @@ void world_close(world *w){
 
 void world_draw(world *w, camera *view){
 	int i, j;
-	SDL_Rect r;
+	SDL_FRect r;
 
 	SDL_SetTextureColorMod(atlas, 0x33, 0x11, 0x00);		
 
@@ -112,7 +112,7 @@ void world_draw(world *w, camera *view){
 				r.y = (j * w->tilesize);
 				r.w = r.h = w->tilesize;
 				camera_project(view, &r);
-				SDL_RenderCopy(ren, atlas, &rblock, &r);
+				SDL_RenderTexture(ren, atlas, &rblock, &r);
 			}
 		}
 	}
